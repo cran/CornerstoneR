@@ -1,0 +1,6 @@
+R Function;Menu Item;Interpret Link
+fitFunction;Fit Function via nls
+randomForest;Random Forest
+reshapeWide;Reshape to Wide
+reshapeLong;Reshape to Long
+mosaicPlot;Mosaic Plot

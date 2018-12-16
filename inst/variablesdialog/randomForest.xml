@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<variables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="scriptvariables.xsd">
+  <logical label = "Use Brush State as Additional Predictor (overrules 'use.rows' to 'all')" name = "brush.pred" />
+  <choice label = "Use Rows" name = "use.rows" options = "all;unbrushed;brushed" default = "all" />
+  <integer label = "Number of Trees" name = "num.trees" min = "1" default = "500"/>
+</variables>

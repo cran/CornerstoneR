@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<variables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="scriptvariables.xsd">
+ <variable label="Response" name="rsp" mandatory="true" variables="r"/>
+ <choice label="Transformation" name="trn" options="none;log;square;inv;root;invroot;invsquare" default="none"/>
+ <variable label="Weights" name="weights" variables="r,g,p"/>
+ <formula label="Linear Terms" name="lin" variables="p"/>
+ <formula label="Non-Linear Terms" name="nln" variables="p"/>
+ <character label="Starting Values" name="start"/>
+ <logical label="Trace" name="trc"/>
+ <float label="Convergence Tolerance" name="tol" default="1e-5" min="1e-100" max="0.1" mandatory="true"/>
+ <integer label="Max. Iterations" name="maxiter" min="1" default="50" mandatory="true"/>
+</variables>
