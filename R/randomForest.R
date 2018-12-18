@@ -8,6 +8,9 @@
 #' @template brush
 #' @template scriptvars
 #' @template returnResults
+#' @param num.threads [\code{integer(1)}]\cr
+#'   Number of threads as described in \code{\link[ranger]{ranger}}\cr
+#'   Default is \code{NULL}.
 #' @details
 #'   Three script variables are summarized in \code{scriptvars} list:\cr
 #'   \describe{
@@ -50,6 +53,7 @@ randomForest = function(dataset = cs.in.dataset()
                         , preds = cs.in.predictors(), resps = cs.in.responses(), brush = cs.in.brushed()
                         , scriptvars = cs.in.scriptvars()
                         , return.results = FALSE
+                        , num.threads = NULL
                         ) {
   # convert dataset to data.table
   dtDataset = as.data.table(dataset)

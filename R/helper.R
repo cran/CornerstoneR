@@ -43,11 +43,9 @@ createCSEnvir = function(dfData, blnBrush = NULL, blnExcluded = NULL
 createCSFunctions = function(env = parent.frame()) {
   assertEnvironment(env)
   
-  # docu cs.* functions in localInterface.R
+  # docu of cs.* functions in localInterface.R
   
-  # due to notes about cs.session.test in R CMD check
-  # init cs.* function after init cs.session.test (see test_aaa.R)
-  # Hence if clause is never true
+  # due to notes about undefined 'cs.session.test' in R CMD check
   if (!testEnvironment(env, contains = "cs.session.test")) {
     cs.session.test = new.env()
     assign("cs.session.test", cs.session.test, envir = env)

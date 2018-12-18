@@ -6,7 +6,8 @@
 \usage{
 randomForest(dataset = cs.in.dataset(), preds = cs.in.predictors(),
   resps = cs.in.responses(), brush = cs.in.brushed(),
-  scriptvars = cs.in.scriptvars(), return.results = FALSE)
+  scriptvars = cs.in.scriptvars(), return.results = FALSE,
+  num.threads = NULL)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
@@ -31,6 +32,10 @@ See below for details.}
 If \code{FALSE} the function returns \code{TRUE} invisibly.
 If \code{TRUE}, it returns a \code{\link{list}} of results.
 Default is \code{FALSE}.}
+
+\item{num.threads}{[\code{integer(1)}]\cr
+Number of threads as described in \code{\link[ranger]{ranger}}\cr
+Default is \code{NULL}.}
 }
 \value{
 Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 

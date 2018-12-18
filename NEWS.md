@@ -1,3 +1,5 @@
-# CornerstoneR 1.0.0
+# CornerstoneR 1.0.1
+- Fix tests.
 
-Initial CRAN release.
+# CornerstoneR 1.0.0
+- Initial CRAN release.

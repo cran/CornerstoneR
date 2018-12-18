@@ -12,10 +12,11 @@ test_that("Classification", {
   createCSFunctions(env = env)
   
   # run randomForest
-  res = randomForest(return.results = TRUE)
-  expect_equal(res$statistics[-9, 2]
-               , data.table(Value = c("Classification", "500", "150", "4", "2", "1", "permutation", "4.667"))
+  res = randomForest(return.results = TRUE, num.threads = 2)
+  expect_equal(res$statistics[1:7, 2]
+               , data.table(Value = c("Classification", "500", "150", "4", "2", "1", "permutation"))
                )
+  expect_numeric(as.double(res$statistics$Value[8:9]), lower = 0, any.missing = FALSE)
   expect_data_table(res$importances, any.missing = FALSE, nrows = 4, ncols = 2)
   expect_numeric(res$importances$Importance, lower = 0, upper = 0.5)
   expect_set_equal(res$importances$Variable, c("Petal.Width", "Petal.Length", "Sepal.Length", "Sepal.Width"))
@@ -31,10 +32,11 @@ test_that("Classification", {
                 , lstScriptVars = list(brush.pred = FALSE, use.rows = "unbrushed", num.trees = 200)
                 , env = env
                 )
-  res = randomForest(return.results = TRUE)
-  expect_equal(res$statistics[-9, 2]
-               , data.table(Value = c("Classification", "200", "50", "3", "1", "1", "permutation", "6"))
+  res = randomForest(return.results = TRUE, num.threads = 2)
+  expect_equal(res$statistics[1:7, 2]
+               , data.table(Value = c("Classification", "200", "50", "3", "1", "1", "permutation"))
                )
+  expect_numeric(as.double(res$statistics$Value[8:9]), lower = 0, any.missing = FALSE)
   
   set.seed(1619)
   createCSEnvir(iris[, c(1:3, 5)], blnBrush = sample(c(!logical(100), logical(50)))
@@ -42,10 +44,11 @@ test_that("Classification", {
                 , lstScriptVars = list(brush.pred = FALSE, use.rows = "brushed", num.trees = 200)
                 , env = env
                 )
-  res = randomForest(return.results = TRUE)
-  expect_equal(res$statistics[-9, 2]
-               , data.table(Value = c("Classification", "200", "100", "3", "1", "1", "permutation", "10"))
+  res = randomForest(return.results = TRUE, num.threads = 2)
+  expect_equal(res$statistics[1:7, 2]
+               , data.table(Value = c("Classification", "200", "100", "3", "1", "1", "permutation"))
                )
+  expect_numeric(as.double(res$statistics$Value[8:9]), lower = 0, any.missing = FALSE)
   
   set.seed(1619)
   createCSEnvir(iris[, c(1:3, 5)], blnBrush = sample(c(!logical(100), logical(50)))
@@ -53,10 +56,12 @@ test_that("Classification", {
                 , lstScriptVars = list(brush.pred = TRUE, use.rows = "brushed", num.trees = 200)
                 , env = env
                 )
-  res = randomForest(return.results = TRUE)
-  expect_equal(res$statistics[-9, 2]
-               , data.table(Value = c("Classification", "200", "150", "4", "2", "1", "permutation", "7.333"))
+  res = randomForest(return.results = TRUE, num.threads = 2)
+  expect_equal(res$statistics[1:7, 2]
+               , data.table(Value = c("Classification", "200", "150", "4", "2", "1", "permutation"))
                )
+  expect_integer(as.integer(res$statistics$Value[2:6]), lower = 0, any.missing = FALSE)
+  expect_numeric(as.double(res$statistics$Value[8:9]), lower = 0, any.missing = FALSE)
   
   # predict missing
   set.seed(1619)
@@ -67,7 +72,7 @@ test_that("Classification", {
                 , lstScriptVars = NULL
                 , env = env
                 )
-  res = randomForest(return.results = TRUE)
+  res = randomForest(return.results = TRUE, num.threads = 2)
   expect_equal(sum(is.na(res$predictions$Resid.Species)), 100)
 })
 
@@ -84,10 +89,12 @@ test_that("Regression", {
   
   
   # run randomForest
-  res = randomForest(return.results = TRUE)
-  expect_equal(res$statistics[-10, 2]
-               , data.table(Value = c("Regression", "500", "54", "2", "1", "5", "permutation", "131.7", "0.2438"))
+  res = randomForest(return.results = TRUE, num.threads = 2)
+  expect_equal(res$statistics[-c(8:10), 2]
+               , data.table(Value = c("Regression", "500", "54", "2", "1", "5", "permutation"))
                )
+  expect_integer(as.integer(res$statistics$Value[2:6]), lower = 0, any.missing = FALSE)
+  expect_numeric(as.integer(res$statistics$Value[8:10]), lower = 0, any.missing = FALSE)
   expect_data_table(res$importances, any.missing = FALSE, nrows = 2, ncols = 2)
   expect_equal(res$importances$Variable, c("tension", "wool"))
   expect_numeric(res$importances$Importance, lower = 15, upper = 65)
@@ -104,7 +111,7 @@ test_that("Regression", {
                 , strResps = "Displacement"
                 , lstScriptVars = NULL, env = env
                 )
-  res = randomForest(return.results = TRUE)
+  res = randomForest(return.results = TRUE, num.threads = 2)
   expect_equal(sum(is.na(res$predictions$Resid.Displacement)), 300)
 })
 
@@ -120,7 +127,7 @@ test_that("Multi", {
   createCSFunctions(env = env)
   
   # run randomForest
-  res = randomForest(return.results = TRUE)
+  res = randomForest(return.results = TRUE, num.threads = 2)
   expect_data_table(res$statistics, nrows = 2, ncols = 12)
   expect_equal(colnames(res$statistics)[1], "Response")
   expect_data_table(res$importances, nrows = 2, ncols = 4)

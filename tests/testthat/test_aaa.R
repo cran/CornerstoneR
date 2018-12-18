@@ -1,15 +1,19 @@
-context("Init")
+context("Initial Tests")
 
-test_that("Init", {
-  # due to notes about cs.session.test in R CMD check
-  # initialise 'cs.session.test' environment before calling createCSFunctions()
-  env = globalenv()
-  createCSEnvir(carstats[, .(Cylinders, Displacement, Horsepower)]
-                , strPreds = "Displacement", strResps = "Horsepower", strGroups = "Cylinders"
-                , env = env
-  )
-  expect_environment(cs.session.test)
-
-  # init cs.* functions after create cs.session.test environment
-  createCSFunctions(env = env)
+test_that("Invoke Local Interface from R", {
+  expect_true(invokeFromR())
+  expect_null(cs.in.auxiliaries())
+  expect_null(cs.in.brushed())
+  expect_null(cs.in.dataset())
+  expect_null(cs.in.excluded())
+  expect_null(cs.in.groupvars())
+  expect_null(cs.in.predictors())
+  expect_null(cs.in.responses())
+  expect_null(cs.in.scriptvars())
+  expect_null(cs.in.subsets())
+  expect_null(cs.in.subsets.current())
+  expect_null(cs.quote())
+  expect_null(cs.out.dataset())
+  expect_null(cs.out.emf())
+  expect_null(cs.out.png())
 })
