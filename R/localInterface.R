@@ -9,13 +9,15 @@
 #' @param data [\code{\link{data.frame}}]\cr
 #'   Dataset with named columns. The names correspond to predictors and responses.
 #' @param name [\code{character(1)}]\cr
-#'   Name for the output to Cornerstone.
+#'   Name for output to Cornerstone.
 #' @param brush [\code{logical(1)}]\cr
-#'   Brushing of the output dataset in Cornerstone across the R object.
+#'   Brushing of output dataset in Cornerstone across the R object.
 #' @param width [\code{numeric(1)}]\cr
-#'   Width of the exported plotting object. See \code{\link[grDevices]{pdf}}.
+#'   Width of exported plotting object. See \code{\link[grDevices]{pdf}}.
 #' @param height [\code{numeric(1)}]\cr
-#'   Width of the exported plotting object. See \code{\link[grDevices]{pdf}}.
+#'   Height of exported plotting object. See \code{\link[grDevices]{pdf}}.
+#' @param R_object [\code{list}]\cr
+#'   List of exported R objects to Cornerstone.
 #' @description 
 #'   CS-R interface functions are defined in package namespace via this file. Each function
 #'   overwrites itself with the corresponding counterpart defined in the global environment
@@ -74,6 +76,13 @@ cs.in.responses = function(quote = FALSE) {
 }
 
 #' @rdname LocalInterface
+cs.in.Robject = function(name = NA) {
+  if (invokeFromR()) return()
+  cs.in.Robject = get0("cs.in.Robject", envir = pos.to.env(1))
+  cs.in.Robject(name = name)
+}
+
+#' @rdname LocalInterface
 cs.in.scriptvars = function(name = NA) {
   if (invokeFromR()) return()
   cs.in.scriptvars = get0("cs.in.scriptvars", envir = pos.to.env(1))
@@ -120,4 +129,11 @@ cs.out.png = function(name = NULL, width = 10, height = 10) {
   if (invokeFromR()) return()
   cs.out.png = get0("cs.out.png", envir = pos.to.env(1))
   cs.out.png(name = name, width = width, height = height)
+}
+
+#' @rdname LocalInterface
+cs.out.Robject = function(R_object, name = NA) {
+  if (invokeFromR()) return()
+  cs.out.Robject = get0("cs.out.Robject", envir = pos.to.env(1))
+  cs.out.Robject(R_object = R_object, name = name)
 }

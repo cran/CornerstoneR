@@ -8,11 +8,10 @@
 #' @template brush
 #' @template scriptvars
 #' @template returnResults
-#' @param num.threads [\code{integer(1)}]\cr
-#'   Number of threads as described in \code{\link[ranger]{ranger}}\cr
-#'   Default is \code{NULL}.
+#' @templateVar packagelink \code{\link[ranger]{ranger}}
+#' @template threedots
 #' @details
-#'   Three script variables are summarized in \code{scriptvars} list:\cr
+#'   The following script variables are summarized in \code{scriptvars} list:\cr
 #'   \describe{
 #'     \item{brush.pred}{[\code{logical(1)}]\cr
 #'       Use \code{brush} vector as additional predictor.\cr
@@ -24,11 +23,17 @@
 #'     \item{num.trees}{[\code{integer(1)}]\cr
 #'       Number of trees to fit in \code{\link[ranger]{ranger}}.\cr
 #'       Default is \code{500}.}
+#'     \item{importance.mode}{[\code{character(1)}]\cr
+#'       Variable importance mode. For details see \code{\link[ranger]{ranger}}.\cr
+#'       Default is \code{permutation}.}
+#'     \item{respect.unordered.factors}{[\code{character(1)}]\cr
+#'       Handling of unordered factor covariates. For details see \code{\link[ranger]{ranger}}.\cr
+#'       Default is \code{NULL}.}
 #'   }
 #' @return
 #'   Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
 #'   resulting \code{\link{data.frame}} objects:
-#'   \item{statistics}{General statistics of random forest.}
+#'   \item{statistics}{General statistics about the random forest.}
 #'   \item{importances}{
 #'     Variable importances of prediction variables in descending order of importance
 #'     (most important first)
@@ -41,19 +46,32 @@
 #'     For categorical response variables or brush state only. A table with counts of each 
 #'     distinct combination of predicted and actual values.
 #'   }
+#'   \item{rgobjects}{
+#'     List of \code{ranger.forest} objects with fitted random forests.
+#'   }
+#' @seealso \code{\link{randomForestPredict}}
 #' @export
 #' @examples
 #' # Fit random forest to iris data:
 #' res = randomForest(iris, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), "Species"
+#'                    , scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
+#'                                        , importance.mode = "permutation"
+#'                                        , respect.unordered.factors = "NULL"
+#'                                        )
 #'                    , brush = rep(FALSE, nrow(iris)), return.results = TRUE
 #'                    )
 #' # Show general statistics:
 #' res$statistics
+#' # Prediction
+#' randomForestPredict(iris[, 1:4], c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+#'                     , robject = res$rgobjects
+#'                     , return.results = TRUE
+#'                     )
 randomForest = function(dataset = cs.in.dataset()
                         , preds = cs.in.predictors(), resps = cs.in.responses(), brush = cs.in.brushed()
                         , scriptvars = cs.in.scriptvars()
                         , return.results = FALSE
-                        , num.threads = NULL
+                        , ...
                         ) {
   # convert dataset to data.table
   dtDataset = as.data.table(dataset)
@@ -64,19 +82,17 @@ randomForest = function(dataset = cs.in.dataset()
   assertLogical(brush, any.missing = FALSE, len = nrow(dtDataset))
   assertDataTable(dtDataset)
   assertSubset(names(dtDataset), choices = c(preds, resps))
+  # check protected names in dataset, conflicts with data.table usage are possible
+  assertDisjunct(names(dtDataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertDataTable(dtDataset[, preds, with = FALSE], any.missing = FALSE)
-  assertList(scriptvars, len = 3, null.ok = TRUE)
-  # FIXME: workaround for CS-2582
-  if (testNull(scriptvars)) {
-    # if NULL, default values
-    scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500)
-  }
-  # FIXME: workaround for CS-2639
-  if (is.na(scriptvars$brush.pred))
-    scriptvars$brush.pred = FALSE
+  assertList(scriptvars, len = 5)
   assertFlag(scriptvars$brush.pred)
   assertChoice(scriptvars$use.rows, c("all", "unbrushed", "brushed"))
   assertCount(scriptvars$num.trees, positive = TRUE)
+  assertChoice(scriptvars$importance.mode, c("impurity", "impurity_corrected", "permutation"))
+  assertChoice(scriptvars$respect.unordered.factors, c("NULL", "ignore", "order", "partition"))
+  if (scriptvars$respect.unordered.factors == "NULL")
+    scriptvars$respect.unordered.factors = NULL
   assertFlag(return.results)
   
   # update to valid names
@@ -88,23 +104,22 @@ randomForest = function(dataset = cs.in.dataset()
   use.rows = scriptvars$use.rows
   
   # due to non-sense notes in R CMD check
-  Importance = Freq = N = runtime = Statistic = Value = Variable = NULL
+  Importance = Freq = N = runtime = Statistic = Value = Variable = brushed = NULL
   
   # use brush as a predictor, results in mandatory response -> additional assert
-  # FIXME: unit test
-  # FIXME: "brush" as existing name from CS
+  # brush: variable in function environment; brushed: column name in dtDataset
   if (scriptvars$brush.pred) {
     assertCharacter(resps, min.len = 1)
-    dtDataset[, brush := as.factor(brush)]
-    preds = c(preds, "brush")
+    dtDataset[, brushed := as.factor(brush)]
+    preds = c(preds, "brushed")
     use.rows = "all"
   }
   
   # on missing response: add brush to data and use it as response
   # use all rows, not brushed or unbrushed
   if (length(resps) == 0) {
-    dtDataset[, brush := as.factor(brush)]
-    resps = "brush"
+    dtDataset[, brushed := as.factor(brush)]
+    resps = "brushed"
     use.rows = "all"
   }
   
@@ -120,7 +135,7 @@ randomForest = function(dataset = cs.in.dataset()
   ndata = nrow(dtDataset)
   stat.names = c("Response", "Type", "Number of Trees", "Sample Size"
                  , "Number of Independent Variables", "Mtry", "Minimal Node Size"
-                 , "Variable Importance Mode"
+                 , "Variable Importance Mode", "Splitrule"
                  , "OOB Prediction Error [%]", "OOB Prediction Error (MSE)", "OOB R squared"
                  , "Runtime R Script [s]"
                  )
@@ -132,6 +147,7 @@ randomForest = function(dataset = cs.in.dataset()
                           , mtry = integer(nresps)
                           , minnodesize = integer(nresps)
                           , impmode = character(nresps)
+                          , splitrule = character(nresps)
                           , oobpredperc = rep(NaN, nresps)
                           , oobpredmse = rep(NaN, nresps)
                           , oobr2 = rep(NaN, nresps)
@@ -157,6 +173,7 @@ randomForest = function(dataset = cs.in.dataset()
   }
   predictions[, (paste(c("V", resps), collapse = "")) := NULL]
   confusions = list()
+  rgobjects = list()
   
   for (resp in resps) {
     # Time measurement
@@ -167,15 +184,18 @@ randomForest = function(dataset = cs.in.dataset()
     # fit the random forest on subset with removed NAs
     rf = ranger::ranger(model, na.omit(dtDataset[brush], cols = resp)
                         , num.trees = scriptvars$num.trees
-                        , importance = "permutation"
-                        , respect.unordered.factors = "order"
+                        , importance = scriptvars$importance.mode
+                        , respect.unordered.factors = scriptvars$respect.unordered.factors
+                        , ...
                         )
+    # save ranger object
+    rgobjects[[resp]] = rf$forest
     
     # get model statistics
-    # FIXME: add splitrule
-    statistics[resps == resp, 2:8 := list(rf$treetype, rf$num.trees, rf$num.samples
+    statistics[resps == resp, 2:9 := list(rf$treetype, rf$num.trees, rf$num.samples
                                           , rf$num.independent.variables, rf$mtry
                                           , rf$min.node.size, rf$importance.mode
+                                          , rf$splitrule
                                           )]
     if(testFactor(dtDataset[[resp]])) {
       statistics[resps == resp, "oobpredperc" := 100*rf$prediction.error]
@@ -220,12 +240,12 @@ randomForest = function(dataset = cs.in.dataset()
     statistics[, Statistic := stat.names]
     setcolorder(statistics, c("Statistic", "Value"))
     # formatC last four columns
-    statistics[9:12, Value := formatC(as.numeric(statistics[9:12, Value]))]
+    statistics[10:13, Value := formatC(as.numeric(statistics[10:13, Value]))]
     # clean up
     if (testFactor(dtDataset[[resps]])) {
-      statistics = statistics[-c(1, 10, 11), ]
+      statistics = statistics[-c(1, 11, 12), ]
     } else {
-      statistics = statistics[-c(1, 9), ]
+      statistics = statistics[-c(1, 10), ]
     }
     importances = transpose(importances)
     colnames(importances) = "Importance"
@@ -245,11 +265,13 @@ randomForest = function(dataset = cs.in.dataset()
                    , paste0("Confusion Table", ifelse(length(resps) == 1, "", paste0(" (", i, ")")))
                    )
   }
+  cs.out.Robject(rgobjects, "RF models")
   
   # return results
   if (return.results) {
     res = list(statistics = statistics, importances = importances
                , predictions = predictions, confusions = confusions
+               , rgobjects = list(rgobjects)
                )
     return(res)
   } else {

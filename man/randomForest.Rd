@@ -6,18 +6,17 @@
 \usage{
 randomForest(dataset = cs.in.dataset(), preds = cs.in.predictors(),
   resps = cs.in.responses(), brush = cs.in.brushed(),
-  scriptvars = cs.in.scriptvars(), return.results = FALSE,
-  num.threads = NULL)
+  scriptvars = cs.in.scriptvars(), return.results = FALSE, ...)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
 Dataset with named columns. The names correspond to predictors and responses.}
 
 \item{preds}{[\code{character}]\cr
-Character vector of predictors.}
+Character vector of predictor variables.}
 
 \item{resps}{[\code{character}]\cr
-Character vector of responses.}
+Character vector of response variables.}
 
 \item{brush}{[\code{logical}]\cr
 Logical vector of length \code{nrow(dataset)}.
@@ -25,22 +24,22 @@ Flags brushed rows in Cornerstone.}
 
 \item{scriptvars}{[\code{list}]\cr
 Named list of script variables set via the Cornerstone "Script Variables" menu.
-\code{NULL} invokes the default values.
-See below for details.}
+For details see below.}
 
 \item{return.results}{[\code{logical(1)}]\cr
 If \code{FALSE} the function returns \code{TRUE} invisibly.
 If \code{TRUE}, it returns a \code{\link{list}} of results.
 Default is \code{FALSE}.}
 
-\item{num.threads}{[\code{integer(1)}]\cr
-Number of threads as described in \code{\link[ranger]{ranger}}\cr
-Default is \code{NULL}.}
+\item{...}{[ANY]\cr
+Additional arguments to be passed to 
+\code{\link[ranger]{ranger}}
+. Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
 Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
   resulting \code{\link{data.frame}} objects:
-  \item{statistics}{General statistics of random forest.}
+  \item{statistics}{General statistics about the random forest.}
   \item{importances}{
     Variable importances of prediction variables in descending order of importance
     (most important first)
@@ -53,13 +52,16 @@ Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link
     For categorical response variables or brush state only. A table with counts of each 
     distinct combination of predicted and actual values.
   }
+  \item{rgobjects}{
+    List of \code{ranger.forest} objects with fitted random forests.
+  }
 }
 \description{
 Random Forest via \code{\link[ranger]{ranger}}. Predicts response variables or brushed set of 
   rows from predictor variables, using Random Forest classification or regression.
 }
 \details{
-Three script variables are summarized in \code{scriptvars} list:\cr
+The following script variables are summarized in \code{scriptvars} list:\cr
   \describe{
     \item{brush.pred}{[\code{logical(1)}]\cr
       Use \code{brush} vector as additional predictor.\cr
@@ -71,13 +73,31 @@ Three script variables are summarized in \code{scriptvars} list:\cr
     \item{num.trees}{[\code{integer(1)}]\cr
       Number of trees to fit in \code{\link[ranger]{ranger}}.\cr
       Default is \code{500}.}
+    \item{importance.mode}{[\code{character(1)}]\cr
+      Variable importance mode. For details see \code{\link[ranger]{ranger}}.\cr
+      Default is \code{permutation}.}
+    \item{respect.unordered.factors}{[\code{character(1)}]\cr
+      Handling of unordered factor covariates. For details see \code{\link[ranger]{ranger}}.\cr
+      Default is \code{NULL}.}
   }
 }
 \examples{
 # Fit random forest to iris data:
 res = randomForest(iris, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), "Species"
+                   , scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
+                                       , importance.mode = "permutation"
+                                       , respect.unordered.factors = "NULL"
+                                       )
                    , brush = rep(FALSE, nrow(iris)), return.results = TRUE
                    )
 # Show general statistics:
 res$statistics
+# Prediction
+randomForestPredict(iris[, 1:4], c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+                    , robject = res$rgobjects
+                    , return.results = TRUE
+                    )
+}
+\seealso{
+\code{\link{randomForestPredict}}
 }

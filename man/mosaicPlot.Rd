@@ -5,17 +5,22 @@
 \title{Mosaic Plot}
 \usage{
 mosaicPlot(dataset = cs.in.dataset(), preds = cs.in.predictors(),
-  resps = cs.in.responses())
+  resps = cs.in.responses(), ...)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
 Dataset with named columns. The names correspond to predictors and responses.}
 
 \item{preds}{[\code{character}]\cr
-Character vector of predictors.}
+Character vector of predictor variables.}
 
 \item{resps}{[\code{character}]\cr
-Character vector of responses.}
+Character vector of response variables.}
+
+\item{...}{[ANY]\cr
+Additional arguments to be passed to 
+\code{\link[vcd]{mosaic}}
+. Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \description{
 Plot extended mosaic via \code{\link[vcd]{mosaic}}.

@@ -6,27 +6,31 @@
 \usage{
 reshapeLong(dataset = cs.in.dataset(), preds = cs.in.predictors(),
   resps = cs.in.responses(), scriptvars = cs.in.scriptvars(),
-  return.results = FALSE)
+  return.results = FALSE, ...)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
 Dataset with named columns. The names correspond to predictors and responses.}
 
 \item{preds}{[\code{character}]\cr
-Character vector of predictors.}
+Character vector of predictor variables.}
 
 \item{resps}{[\code{character}]\cr
-Character vector of responses.}
+Character vector of response variables.}
 
 \item{scriptvars}{[\code{list}]\cr
 Named list of script variables set via the Cornerstone "Script Variables" menu.
-\code{NULL} invokes the default values.
-See below for details.}
+For details see below.}
 
 \item{return.results}{[\code{logical(1)}]\cr
 If \code{FALSE} the function returns \code{TRUE} invisibly.
 If \code{TRUE}, it returns a \code{\link{list}} of results.
 Default is \code{FALSE}.}
+
+\item{...}{[ANY]\cr
+Additional arguments to be passed to 
+\code{\link[data.table:melt.data.table]{melt}}
+. Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
 Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 

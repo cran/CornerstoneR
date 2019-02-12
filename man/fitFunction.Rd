@@ -2,34 +2,42 @@
 % Please edit documentation in R/fitFunction.R
 \name{fitFunction}
 \alias{fitFunction}
-\title{Fit Function to Data}
+\title{Fit Function to Data via nls}
 \usage{
 fitFunction(dataset = cs.in.dataset(), preds = cs.in.predictors(),
   resps = cs.in.responses(), groups = cs.in.groupvars(),
-  scriptvars = cs.in.scriptvars(), return.results = FALSE)
+  auxs = cs.in.auxiliaries(), scriptvars = cs.in.scriptvars(),
+  return.results = FALSE, ...)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
 Dataset with named columns. The names correspond to predictors and responses.}
 
 \item{preds}{[\code{character}]\cr
-Character vector of predictors.}
+Character vector of predictor variables.}
 
 \item{resps}{[\code{character}]\cr
-Character vector of responses.}
+Character vector of response variables.}
 
 \item{groups}{[\code{character}]\cr
-Character vector of groups.}
+Character vector of group variables.}
+
+\item{auxs}{[\code{character}]\cr
+Character vector of auxiliary variables.}
 
 \item{scriptvars}{[\code{list}]\cr
 Named list of script variables set via the Cornerstone "Script Variables" menu.
-\code{NULL} invokes the default values.
-See below for details.}
+For details see below.}
 
 \item{return.results}{[\code{logical(1)}]\cr
 If \code{FALSE} the function returns \code{TRUE} invisibly.
 If \code{TRUE}, it returns a \code{\link{list}} of results.
 Default is \code{FALSE}.}
+
+\item{...}{[ANY]\cr
+Additional arguments to be passed to 
+\code{\link{nls}}
+. Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
 Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
@@ -44,10 +52,27 @@ Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link
 Fit predefined functions to data via nonlinear least squares using \code{\link{nls}}.
 }
 \details{
-One script variables is summarized in \code{scriptvars} list:\cr
+The following script variables are summarized in \code{scriptvars} list:\cr
   \describe{
     \item{math.fun}{[\code{character(1)}]\cr
-      Function selection for fitting data.}
+      Function selection for fitting data. It is possible to choose a predefined model, or
+      compose a model manually by selecting \code{User Defined}.\cr
+      Default is \code{User Defined}}
+    \item{preds.frml}{[\code{character(1)}]\cr
+      Only required if \code{math.fun} is set to \code{User Defined}.
+      Valid R \code{\link{formula}} for the right hand side (predictors) of the model equation.}
+    \item{resp.frml}{[\code{character(1)}]\cr
+      Only required if \code{math.fun} is set to \code{User Defined}.
+      Valid R \code{\link{formula}} for the left hand side (response) of the model equation.}
+    \item{start.vals}{[\code{character(1)}]\cr
+      Only required if \code{math.fun} is set to \code{User Defined}.
+      Specify starting values for all terms of the right hand side as a comma separated list
+      with a period as decimal separator.}
+    \item{weights}{[\code{character(1)}]\cr
+      Select a weighting variable from the auxiliary variables.}
+    \item{algo.nls}{[\code{character(1)}]\cr
+      Specifies the algorithm to use. For details see \code{\link{nls}}.\cr
+      Default is \code{plinear}.}
   }
 }
 \examples{
@@ -61,8 +86,12 @@ dt = data.table(  x1 = sample(seq(-10, 10, length.out = 100))
                   )
 dt[group1 == "A", y1 := fun(x1, 1, 10, 1, 0.6, 0.1)]
 dt[group1 == "B", y1 := fun(x1, 8, 2, -1, 0.3, 0.1)]
+# Set script variables
+scriptvars = list(math.fun = "Logistic", resp.frml = "", preds.frml = ""
+                  , start.vals = "", weights = "", algo.nls = "default"
+                  )
 # Fit the logistic function:
-res = fitFunction(dt, "x1", "y1", "group1", list(math.fun = "Logistic"), TRUE)
+res = fitFunction(dt, "x1", "y1", "group1", "", scriptvars, TRUE)
 # Show estimated coefficients:
 res$coeff
 # Plot fitted vs. residuals:

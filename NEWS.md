@@ -1,3 +1,10 @@
+# CornerstoneR 1.1.0
+- Random Forest: Add importance mode and respect unordered factors to script variables.
+- Random Forest: Export split rule to statistics.
+- Random Forest: Add function 'randomForestPredict' to predict new data via a saved forest.
+- Fit Function via nls: User defined functions are now possible via script variables.
+- 'FitFunction', 'mosaicPlot', 'ReshapeLongWide': Add three dots to function call.
+
 # CornerstoneR 1.0.1
 - Fix tests.
 

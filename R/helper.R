@@ -1,7 +1,9 @@
 createCSEnvir = function(dfData, blnBrush = NULL, blnExcluded = NULL
                          , strPreds = character(), strResps = character(), strGroups = character()
+                         , strAuxs = character()
                          , lstScriptVars = list()
                          , dfSubsets = data.frame(NULL), strSubset = ""
+                         , lstRobject = list()
                          , env = parent.frame()) {
   # sanity check
   assertDataFrame(dfData, col.names = "named")
@@ -13,14 +15,16 @@ createCSEnvir = function(dfData, blnBrush = NULL, blnExcluded = NULL
   assert(testCharacter(strPreds), testSubset(strPreds, colnames(dfData)), combine = "and")
   assert(testCharacter(strResps), testSubset(strResps, colnames(dfData)), combine = "and")
   assert(testCharacter(strGroups), testSubset(strGroups, colnames(dfData)), combine = "and")
+  assert(testCharacter(strAuxs), testSubset(strAuxs, colnames(dfData)), combine = "and")
   assertList(lstScriptVars, null.ok = TRUE)
   assertDataFrame(dfSubsets, types = "logical", col.names = "named")
   assertString(strSubset)
+  assertList(lstRobject, any.missing = FALSE, null.ok = TRUE)
   assertEnvironment(env)
   
   # create environment
   cs.session.test = new.env()
-  cs.session.test$auxiliaries = character()
+  cs.session.test$auxiliaries = strAuxs
   cs.session.test$dataset = dfData
   cs.session.test$brushed = blnBrush
   cs.session.test$excluded = blnExcluded
@@ -30,6 +34,7 @@ createCSEnvir = function(dfData, blnBrush = NULL, blnExcluded = NULL
   cs.session.test$scriptvars = lstScriptVars
   cs.session.test$subsets = dfSubsets
   cs.session.test$subsets.current = strSubset
+  cs.session.test$robjects.in = lstRobject
   # FIXME: check defaults
   cs.session.test$graphs.active = FALSE
   cs.session.test$graphs.files = character()
@@ -86,6 +91,16 @@ createCSFunctions = function(env = parent.frame()) {
       cs.session.test$responses
     }
   }
+  env$cs.in.Robject = function(name = NA) {
+    if (is.na(name)) {
+      cs.session.test$robjects.in
+    } else {
+      if (is.character(name))
+        cs.session.test$robjects.in[[as.character(name)]]
+      else
+        stop(paste('name must be string or NA, not ', class(name)))
+    }
+  }
   env$cs.in.scriptvars = function(name = NA) {
     assertString(name, na.ok = TRUE)
     if (is.na(name)) {
@@ -106,7 +121,7 @@ createCSFunctions = function(env = parent.frame()) {
   }
   
   # following functions have a different definition than in CS-R
-  env$cs.out.dataset = function(data, name = NA, brush = FALSE) {
+  env$cs.out.dataset = function(data = NULL, name = NULL, brush = FALSE) {
     assertDataFrame(data)
     assertCharacter(name)
     assertFlag(brush)
@@ -122,6 +137,10 @@ createCSFunctions = function(env = parent.frame()) {
     assertCharacter(name)
     assertNumber(width)
     assertNumber(height)
+    invisible(TRUE)
+  }
+  env$cs.out.Robject = function(R_object = NULL, name = NULL) {
+    assertCharacter(name)
     invisible(TRUE)
   }
 

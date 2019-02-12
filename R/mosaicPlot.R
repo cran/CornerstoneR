@@ -4,6 +4,8 @@
 #' @template dataset
 #' @template predictors
 #' @template responses
+#' @templateVar packagelink \code{\link[vcd]{mosaic}}
+#' @template threedots
 #' @export
 #' @importFrom graphics plot
 #' @importFrom stats as.formula na.omit predict
@@ -12,13 +14,16 @@
 #' mosaicPlot(as.data.frame(Titanic), c("Class", "Sex", "Age", "Survived"), "Freq")
 mosaicPlot = function(dataset = cs.in.dataset()
                       , preds = cs.in.predictors(), resps = cs.in.responses()
+                      , ...
                       ) {
   # sanity checks
   assertDataFrame(dataset)
   assertCharacter(preds, any.missing = FALSE, min.len = 1)
   assertCharacter(resps, any.missing = FALSE, len = 1)
   assertSubset(names(dataset), choices = c(preds, resps))
-
+  # check protected names in dataset, conflicts with data.table usage are possible
+  assertDisjunct(names(dataset), c("pred", "preds", "resp", "group", "groups", "resps", "brush", "brushed"))
+  
   # convert to data.table
   dtDataset = as.data.table(dataset)
   # update to valid names
@@ -30,9 +35,9 @@ mosaicPlot = function(dataset = cs.in.dataset()
   frml = as.formula(paste0(resps, "~", paste0(preds, collapse = "+")))
   # plotting
   cs.out.png("Mosaic Plot (PNG)")
-  vcd::mosaic(frml, data = dtDataset, highlighting_fill = c("gray", "red"))
+  vcd::mosaic(frml, data = dtDataset, highlighting_fill = c("gray", "red"), ...)
   cs.out.emf("Mosaic Plot (EMF)")
-  vcd::mosaic(frml, data = dtDataset, highlighting_fill = c("gray", "red"))
+  vcd::mosaic(frml, data = dtDataset, highlighting_fill = c("gray", "red"), ...)
   
   # return
   invisible(TRUE)

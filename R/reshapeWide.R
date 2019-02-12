@@ -11,6 +11,8 @@
 #' @template groups
 #' @template scriptvars
 #' @template returnResults
+#' @templateVar packagelink \code{\link[data.table:dcast.data.table]{dcast}}
+#' @template threedots
 #' @details
 #'   One script variables is summarized in \code{scriptvars} list:\cr
 #'   \describe{
@@ -30,6 +32,7 @@ reshapeWide = function(dataset = cs.in.dataset()
                        , preds = cs.in.predictors(), resps = cs.in.responses(), groups = cs.in.groupvars()
                        , scriptvars = cs.in.scriptvars()
                        , return.results = FALSE
+                       , ...
                        ) {
   # sanity checks
   assertDataFrame(dataset)
@@ -37,6 +40,8 @@ reshapeWide = function(dataset = cs.in.dataset()
   assertCharacter(resps, any.missing = FALSE, min.len = 1)
   assertCharacter(groups, any.missing = FALSE, min.len = 1)
   assertSubset(names(dataset), choices = c(preds, resps, groups))
+  # check protected names in dataset, conflicts with data.table usage are possible
+  assertDisjunct(names(dataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertList(scriptvars, len = 1)
   assertFlag(scriptvars$nodrop)
   assertFlag(return.results)
@@ -55,6 +60,7 @@ reshapeWide = function(dataset = cs.in.dataset()
                           , formula = as.formula(paste(paste(groups, collapse = "+"), "~", paste(preds, collapse = "+")))
                           , drop = !scriptvars$nodrop
                           , value.var = resps
+                          , ...
                           )
   
   # add response name for one response

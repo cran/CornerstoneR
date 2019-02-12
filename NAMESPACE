@@ -3,6 +3,7 @@
 export(fitFunction)
 export(mosaicPlot)
 export(randomForest)
+export(randomForestPredict)
 export(reshapeLong)
 export(reshapeWide)
 import(checkmate)

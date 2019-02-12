@@ -11,5 +11,5 @@ test_that("Function List", {
   expect_data_frame(funlist, ncols = 3)
   expect_data_frame(funlist[, 1:2], any.missing = FALSE)
   # compare functions to namespace
-  expect_set_equal(funnamespace[status == "export", fun], funlist[, 1])
+  expect_set_equal(funlist[, 1], c(funnamespace[status == "export", fun], "---"))
 })

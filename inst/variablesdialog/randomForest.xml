@@ -3,4 +3,6 @@
   <logical label = "Use Brush State as Additional Predictor (overrules 'use.rows' to 'all')" name = "brush.pred" />
   <choice label = "Use Rows" name = "use.rows" options = "all;unbrushed;brushed" default = "all" />
   <integer label = "Number of Trees" name = "num.trees" min = "1" default = "500"/>
+  <choice label = "Variabel Importance Mode" name = "importance.mode" options = "impurity;impurity_corrected;permutation" default = "permutation" />
+  <choice label = "Respect Unordered Factors" name = "respect.unordered.factors" options = "NULL;ignore;order;partition" default = "NULL" />
 </variables>

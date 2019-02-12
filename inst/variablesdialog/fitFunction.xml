@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <variables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="scriptvariables.xsd">
-  <choice label = "Mathematical Function" name = "math.fun" options = "Logistic" default = "Logistic" />
+  <choice label = "Mathematical Function" name = "math.fun" options = "User Defined;Logistic" default = "User Defined" />
+  <formula label = "Prediction Formula" name = "preds.frml" variables = "p" />
+  <formula label = "Response Formula" name = "resp.frml" variables = "r" />
+  <character label = "Starting Values" name = "start.vals" />
+  <variable label = "Weights" name = "weights" variables = "a"/>
+  <choice label = "Algorithm" name = "algo.nls" options = "default;plinear;port" default = "default" />
 </variables>

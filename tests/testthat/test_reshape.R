@@ -65,6 +65,7 @@ test_that("CastWide", {
                 )
   # init cs.* functions (only necessary for local call)
   createCSFunctions(env = env)
+  expect_true(reshapeWide())
   res = reshapeWide(return.results = TRUE)
   expect_data_table(res$reshapeWide, nrows = 6, ncols = 12)
   expect_equal(colnames(res$reshapeWide)[c(1, 2, 12)], c("Subject", "conc_0.25", "conc_8"))

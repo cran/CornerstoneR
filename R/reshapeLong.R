@@ -9,6 +9,8 @@
 #' @template responses
 #' @template scriptvars
 #' @template returnResults
+#' @templateVar packagelink \code{\link[data.table:melt.data.table]{melt}}
+#' @template threedots
 #' @details
 #'   One script variables is summarized in \code{scriptvars} list:\cr
 #'   \describe{
@@ -33,12 +35,15 @@ reshapeLong = function(dataset = cs.in.dataset()
                        , preds = cs.in.predictors(), resps = cs.in.responses()
                        , scriptvars = cs.in.scriptvars()
                        , return.results = FALSE
+                       , ...
                        ) {
   # sanity checks
   assertDataFrame(dataset)
   assertCharacter(preds, any.missing = FALSE, min.len = 1)
   assertCharacter(resps, any.missing = FALSE, min.len = 1)
   assertSubset(names(dataset), choices = c(preds, resps))
+  # check protected names in dataset, conflicts with data.table usage are possible
+  assertDisjunct(names(dataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertList(scriptvars, len = 1)
   assertString(scriptvars$split, min.chars = 1)
   assertFlag(return.results)
@@ -58,6 +63,7 @@ reshapeLong = function(dataset = cs.in.dataset()
   res = data.table::melt(  data = dtDataset
                          , id.vars = preds
                          , mesure.vars = resps
+                         , ...
                          )
   if (nchar(scriptvars$split) > 0) {
     res.vars = res[, tstrsplit(variable, scriptvars$split)]

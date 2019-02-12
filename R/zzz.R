@@ -1,3 +1,3 @@
 #' @import checkmate
 #' @import data.table
-NULL
+"_PACKAGE"

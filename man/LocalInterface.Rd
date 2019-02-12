@@ -10,6 +10,7 @@
 \alias{cs.in.groupvars}
 \alias{cs.in.predictors}
 \alias{cs.in.responses}
+\alias{cs.in.Robject}
 \alias{cs.in.scriptvars}
 \alias{cs.in.subsets}
 \alias{cs.in.subsets.current}
@@ -17,6 +18,7 @@
 \alias{cs.out.dataset}
 \alias{cs.out.emf}
 \alias{cs.out.png}
+\alias{cs.out.Robject}
 \title{Local Interface Functions}
 \usage{
 invokeFromR()
@@ -35,6 +37,8 @@ cs.in.predictors(quote = FALSE)
 
 cs.in.responses(quote = FALSE)
 
+cs.in.Robject(name = NA)
+
 cs.in.scriptvars(name = NA)
 
 cs.in.subsets()
@@ -48,6 +52,8 @@ cs.out.dataset(data, name = NA, brush = FALSE)
 cs.out.emf(name = NULL, width = 10, height = 10)
 
 cs.out.png(name = NULL, width = 10, height = 10)
+
+cs.out.Robject(R_object, name = NA)
 }
 \arguments{
 \item{quote}{[\code{logical(1)}]\cr
@@ -55,7 +61,7 @@ Quote all variables to cover invalid names.
 Use \code{\link[base]{make.names}} as an alternative.}
 
 \item{name}{[\code{character(1)}]\cr
-Name for the output to Cornerstone.}
+Name for output to Cornerstone.}
 
 \item{x}{[\code{character(1)}]\cr
 String to check for invalid characters related to \code{\link[base]{make.names}}.
@@ -65,13 +71,16 @@ Add backticks, if necessary.}
 Dataset with named columns. The names correspond to predictors and responses.}
 
 \item{brush}{[\code{logical(1)}]\cr
-Brushing of the output dataset in Cornerstone across the R object.}
+Brushing of output dataset in Cornerstone across the R object.}
 
 \item{width}{[\code{numeric(1)}]\cr
-Width of the exported plotting object. See \code{\link[grDevices]{pdf}}.}
+Width of exported plotting object. See \code{\link[grDevices]{pdf}}.}
 
 \item{height}{[\code{numeric(1)}]\cr
-Width of the exported plotting object. See \code{\link[grDevices]{pdf}}.}
+Height of exported plotting object. See \code{\link[grDevices]{pdf}}.}
+
+\item{R_object}{[\code{list}]\cr
+List of exported R objects to Cornerstone.}
 }
 \description{
 CS-R interface functions are defined in package namespace via this file. Each function
