@@ -7,21 +7,21 @@
 \title{CornerstoneR: Collection of Scripts for Interface Between 'Cornerstone' and 'R'}
 \description{
 Collection of generic 'R' scripts which enable you to use existing 'R' routines in 'Cornerstone'.
-    \cr\cr
+    ---
     The desktop application 'Cornerstone' (<https://www.camline.com/en/products/cornerstone/cornerstone-core.html>)
     is a data analysis software provided by 'camLine' that empowers engineering teams to find solutions even faster.
     The engineers incorporate intensified hands-on statistics into their projects.
     They benefit from an intuitive and uniquely designed graphical Workmap concept: you design
     experiments (DoE) and explore data, analyze dependencies, and find answers you can act upon,
     immediately, interactively, and without any programming.
-    \cr\cr
+    ---
     While 'Cornerstone's' interface to the statistical programming language 'R' has been available
     since version 6.0, the latest interface with 'R' is even much more efficient.
     'Cornerstone' release 7.1.1 allows you to integrate user defined 'R' packages directly into the
     standard 'Cornerstone' GUI.
     Your engineering team stays in 'Cornerstone's' graphical working environment and can apply 'R'
     routines, immediately and without the need to deal with programming code.
-    \cr\cr
+    ---
     Learn how to use 'R' packages in 'Cornerstone' 7.1.1 on 'camLineTV' YouTube channel 
     (<https://www.youtube.com/watch?v=HEQHwq_laXU>) (available in German).
 }

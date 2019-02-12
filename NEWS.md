@@ -1,3 +1,6 @@
+# CornerstoneR 1.1.1
+- Cleanup DESCRIPTION
+
 # CornerstoneR 1.1.0
 - Random Forest: Add importance mode and respect unordered factors to script variables.
 - Random Forest: Export split rule to statistics.
