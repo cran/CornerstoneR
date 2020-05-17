@@ -18,7 +18,7 @@ test_that("MeltLong", {
   # two without splitting
   createCSEnvir(dtTest[, c(1:4)]
                 , strPreds = c("i_1", "i_2"), strResps = c("f1", "f2")
-                , lstScriptVars = list(split = "_")
+                , lstScriptVars = list(split = "")
                 , env = env
                 )
   # init cs.* functions (only necessary for local call)
@@ -51,76 +51,231 @@ test_that("MeltLong", {
   res = reshapeLong(return.results = TRUE)
   expect_data_table(res$reshapeLong, nrows = 18, ncols = 5)
   expect_equal(colnames(res$reshapeLong), c("i_1", "i_2", "variable1", "variable2", "value"))
+  # no predictors 1
+  createCSEnvir(dtTest[, 1:2]
+                , strResps = colnames(dtTest)[1:2]
+                , lstScriptVars = list(split = "")
+                , env = env
+                )
+  res = reshapeLong(return.results = TRUE)
+  expect_data_table(res$reshapeLong, nrows = 12, ncols = 2)
+  expect_equal(colnames(res$reshapeLong), c("variable", "value"))
+  # no predictors 2
+  createCSEnvir(dtTest[, 1:2]
+                , strResps = colnames(dtTest)[1:2]
+                , lstScriptVars = list(split = "_")
+                , env = env
+                )
+  res = reshapeLong(return.results = TRUE)
+  expect_data_table(res$reshapeLong, nrows = 12, ncols = 3)
+  expect_equal(colnames(res$reshapeLong), c("variable1", "variable2", "value"))
 })
 
 test_that("CastWide", {
   env = globalenv()
   
+  # default settings for script variables
+  scriptvars = list(drop = TRUE, aggr.fun = "mean")
+  
   # single
   createCSEnvir(Indometh
-                , strGroups = colnames(Indometh)[1], strPreds = colnames(Indometh)[2]
-                , strResps = colnames(Indometh)[3]
-                , lstScriptVars = list(nodrop = FALSE)
+                , strPreds = colnames(Indometh)[2], strResps = colnames(Indometh)[3]
+                , strGroups = colnames(Indometh)[1]
+                , lstScriptVars = scriptvars
                 , env = env
                 )
   # init cs.* functions (only necessary for local call)
   createCSFunctions(env = env)
   expect_true(reshapeWide())
   res = reshapeWide(return.results = TRUE)
-  expect_data_table(res$reshapeWide, nrows = 6, ncols = 12)
-  expect_equal(colnames(res$reshapeWide)[c(1, 2, 12)], c("Subject", "conc_0.25", "conc_8"))
+  expect_data_table(res$reshapeWide, nrows = 11, ncols = 7)
+  expect_equal(colnames(res$reshapeWide)[c(1, 2, 7)], c("time", "conc_mean_1", "conc_mean_3"))
+  expect_equal(res$reshapeWide$conc_mean_1, head(Indometh$conc, 11))
+  expect_equal(res$reshapeWide$conc_mean_6, tail(Indometh$conc, 11))
   
   # additional response
   IndoExt = cbind(Indometh, rnd = rnorm(66))
   createCSEnvir(IndoExt
-                , strGroups = colnames(IndoExt)[1], strPreds = colnames(IndoExt)[2]
-                , strResps = colnames(IndoExt)[3:4]
-                , lstScriptVars = list(nodrop = FALSE)
+                , strPreds = colnames(IndoExt)[2], strResps = colnames(IndoExt)[3:4]
+                , strGroups = colnames(IndoExt)[1]
+                , lstScriptVars = scriptvars
                 , env = env
                 )
   res = reshapeWide(return.results = TRUE)
-  expect_data_table(res$reshapeWide, nrows = 6, ncols = 23)
-  expect_equal(colnames(res$reshapeWide)[c(1, 2, 12, 13, 23)], c("Subject", "conc_0.25", "conc_8", "rnd_0.25", "rnd_8"))
+  expect_data_table(res$reshapeWide, nrows = 11, ncols = 13)
+  expect_equal(colnames(res$reshapeWide)[c(1, 2, 7, 8, 13)]
+               , c("time", "conc_mean_1", "conc_mean_3", "rnd_mean_1", "rnd_mean_3")
+               )
   
   # multiple groups
   DT = data.table(v1 = rep(1:2, each = 6), v2 = rep(rep(1:3, 2), each = 2), v3 = rep(1:2, 6), v4 = rnorm(6))
   createCSEnvir(DT
-                , strGroups = c("v1", "v2"), strPreds = "v3"
-                , strResps = "v4"
-                , lstScriptVars = list(nodrop = FALSE)
+                , strPreds = "v2", strResps = "v4"
+                , strGroups = c("v1", "v3")
+                , lstScriptVars = scriptvars
+                , env = env
+                )
+  res = reshapeWide(return.results = TRUE)
+  expect_data_table(res$reshapeWide, nrows = 3, ncols = 5)
+  expect_equal(colnames(res$reshapeWide)
+               , c("v2", "v4_mean_1_1", "v4_mean_1_2", "v4_mean_2_1", "v4_mean_2_2")
+               )
+  
+  # multiple predictors
+  createCSEnvir(DT
+                , strPreds = c("v2", "v3"), strResps = "v4"
+                , strGroups = "v1"
+                , lstScriptVars = scriptvars
                 , env = env
                 )
   res = reshapeWide(return.results = TRUE)
   expect_data_table(res$reshapeWide, nrows = 6, ncols = 4)
-  expect_equal(colnames(res$reshapeWide), c("v1", "v2", "v4_1", "v4_2"))
+  expect_equal(colnames(res$reshapeWide), c("v2", "v3", "v4_mean_1", "v4_mean_2"))
   
-  # multiple predictors
-  createCSEnvir(DT
-                , strGroups = "v1", strPreds = c("v2", "v3")
-                , strResps = "v4"
-                , lstScriptVars = list(nodrop = FALSE)
-                , env = env
-                )
-  res = reshapeWide(return.results = TRUE)
-  expect_data_table(res$reshapeWide, nrows = 2, ncols = 7)
-  expect_equal(colnames(res$reshapeWide)[c(1, 2, 7)], c("v1", "v4_1_1", "v4_3_2"))
-  
-  # carstats 1
+  # aggreation function working
+  # carstats standard
   createCSEnvir(carstats[, .(MPG, Cylinders, Model.Year)]
-                , strPreds = "Cylinders", strResps = "MPG", strGroups = "Model.Year"
-                , lstScriptVars = list(nodrop = FALSE)
+                , strPreds = "Model.Year", strResps = "MPG", strGroups = "Cylinders"
+                , lstScriptVars = scriptvars
                 , env = env
                 )
-  expect_message(reshapeWide(return.results = TRUE), "Aggregate function missing")
   res = reshapeWide(return.results = TRUE)
-  expect_data_table(res$reshapeWide, nrows = 13, ncols = 6)
-  # carstats 2
-  createCSEnvir(carstats[, .(Cylinders, Displacement, Horsepower)]
-                , strPreds = "Displacement", strResps = "Horsepower", strGroups = "Cylinders"
-                , lstScriptVars = list(nodrop = FALSE)
+  expect_data_table(res$reshapeWide, nrows = 13, ncols = 6, type = "numeric")
+  # carstats more functions
+  scriptvars1 = scriptvars
+  scriptvars1$aggr.fun = "mean, sd"
+  createCSEnvir(carstats[, .(MPG, Cylinders, Model.Year)]
+                , strPreds = "Model.Year", strResps = "MPG", strGroups = "Cylinders"
+                , lstScriptVars = scriptvars1
                 , env = env
                 )
-  expect_message(reshapeWide(return.results = TRUE), "Aggregate function missing")
   res = reshapeWide(return.results = TRUE)
-  expect_data_table(res$reshapeWide, nrows = 5, ncols = 84)
+  expect_data_table(res$reshapeWide, nrows = 13, ncols = 11, type = "numeric")
+  # carstats wrong function
+  scriptvars1 = scriptvars
+  scriptvars1$aggr.fun = "mean, notdefinedfunction"
+  createCSEnvir(carstats[, .(MPG, Cylinders, Model.Year)]
+                , strPreds = "Model.Year", strResps = "MPG", strGroups = "Cylinders"
+                , lstScriptVars = scriptvars1
+                , env = env
+                )
+  expect_error(reshapeWide(), "aggregation functions")
+  # carstats aggregation by other column, check assertion
+  scriptvars1 = scriptvars
+  scriptvars1$aggr.fun = "mean, minby(Weight), sd, maxby(Blup)"
+  createCSEnvir(carstats[, .(Origin, Displacement, Cylinders, Weight)]
+                , strPreds = "Origin", strResps = "Displacement", strGroups = "Cylinders", strAuxs = "Weight"
+                , lstScriptVars = scriptvars1
+                , env = env
+                )
+  expect_error(reshapeWide())
+  # carstats aggregation by other column
+  scriptvars1 = scriptvars
+  scriptvars1$aggr.fun = "mean, minby(Weight), sd, maxby(Weight)"
+  createCSEnvir(carstats[, .(Origin, Displacement, Cylinders, Weight)]
+                , strPreds = "Origin", strResps = "Displacement", strGroups = "Cylinders", strAuxs = "Weight"
+                , lstScriptVars = scriptvars1
+                , env = env
+                )
+  expect_true(reshapeWide())
+  res = reshapeWide(return.results = TRUE)
+  expect_data_table(res$reshapeWide, nrows = 7, ncols = 5*4+1)
+  # carstats aggregation by multiple response columns
+  scriptvars1 = scriptvars
+  scriptvars1$aggr.fun = "mean, minby(Weight), sd, maxby(Weight)"
+  createCSEnvir(carstats[, .(Origin, Displacement, Horsepower, Cylinders, Weight)]
+                , strPreds = "Origin", strResps = c("Displacement", "Horsepower")
+                , strGroups = "Cylinders", strAuxs = "Weight"
+                , lstScriptVars = scriptvars1
+                , env = env
+                )
+  expect_true(reshapeWide())
+  res = reshapeWide(return.results = TRUE)
+  expect_data_table(res$reshapeWide, nrows = 7, ncols = 5*4*2+1)
+  # carstats, check results from minby and maxby
+  scriptvars1 = scriptvars
+  scriptvars1$aggr.fun = "minby(Weight), maxby(Weight)"
+  createCSEnvir(carstats[, .(Origin, Displacement, Cylinders, Weight)]
+                , strPreds = "Origin", strResps = "Displacement", strGroups = "Cylinders", strAuxs = "Weight"
+                , lstScriptVars = scriptvars1
+                , env = env
+                )
+  expect_true(reshapeWide())
+  res = reshapeWide(return.results = TRUE)
+  # manually proven results
+  expect_equal(res$reshapeWide$Displacement_minby_4, c(122, 79, 97, 68, 72, 104, 98))
+  expect_equal(res$reshapeWide$Displacement_maxby_4, c(122, 120, 146, 107, 134, 130, 151))
+})
+
+test_that("Transpose", {
+  env = globalenv()
+  
+  # default settings for script variables
+  scriptvars = list(convert.numeric = TRUE)
+  
+  # standard
+  dtTest = data.table(data1 = rnorm(5), data2 = runif(5))
+  createCSEnvir(dtTest
+                , lstScriptVars = scriptvars
+                , env = env
+                )
+  # init cs.* functions (only necessary for local call)
+  createCSFunctions(env = env)
+  expect_true(reshapeTranspose())
+  res = reshapeTranspose(return.results = TRUE)
+  expect_data_table(res$reshapeTranspose, nrows = 2, ncols = 6, col.names = "named")
+  expect_data_table(res$reshapeTranspose[, -1], types = "numeric")
+  expect_equal(colnames(res$reshapeTranspose), c("colnames", paste0("V", 1:5)))
+  
+  # mixed, convert.numeric = FALSE
+  scriptvars1 = scriptvars
+  scriptvars1$convert.numeric = FALSE
+  dtTest = data.table(data1 = rnorm(5), data2 = sample(LETTERS, 5))
+  createCSEnvir(dtTest
+                , lstScriptVars = scriptvars1
+                , env = env
+                )
+  # init cs.* functions (only necessary for local call)
+  createCSFunctions(env = env)
+  expect_true(reshapeTranspose())
+  res = reshapeTranspose(return.results = TRUE)
+  expect_data_table(res$reshapeTranspose, types = "character", nrows = 2, ncols = 6, col.names = "named")
+  expect_equal(colnames(res$reshapeTranspose), c("colnames", paste0("V", 1:5)))
+  
+  # mixed, convert.numeric = TRUE
+  dtTest = data.table(data1 = rnorm(5), data2 = sample(LETTERS, 5))
+  createCSEnvir(dtTest
+                , lstScriptVars = scriptvars
+                , env = env
+                )
+  # init cs.* functions (only necessary for local call)
+  createCSFunctions(env = env)
+  expect_true(reshapeTranspose())
+  res = reshapeTranspose(return.results = TRUE)
+  expect_data_table(res$reshapeTranspose, nrows = 2, ncols = 6, col.names = "named")
+  expect_data_table(res$reshapeTranspose[, -1], types = "numeric")
+  
+  # column with data for new variable names
+  # generate data
+  dtTest = data.table(varnames = sample(LETTERS, size = 5), data1 = rnorm(5), data2 = runif(5))
+  createCSEnvir(dtTest
+                , strGroups = "varnames"
+                , lstScriptVars = scriptvars
+                , env = env
+                )
+  expect_true(reshapeTranspose())
+  res = reshapeTranspose(return.results = TRUE)
+  expect_data_table(res$reshapeTranspose, nrows = 2, ncols = 6, col.names = "named")
+  expect_equal(colnames(res$reshapeTranspose), c("colnames", dtTest[[1]]))
+  
+  # input is numeric as string and should be returned as numeric
+  dtTest = data.table(data1 = c("1,2", "2,3", "3,4"), data2 = c("9,87", "7,65", "5,43"))
+  createCSEnvir(dtTest
+                , lstScriptVars = scriptvars
+                , env = env
+                )
+  expect_true(reshapeTranspose())
+  res = reshapeTranspose(return.results = TRUE)
+  expect_data_table(res$reshapeTranspose, nrows = 2, ncols = 4, col.names = "named")
+  expect_data_table(res$reshapeTranspose[, -1], types = "numeric")
 })

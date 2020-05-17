@@ -4,9 +4,14 @@
 \alias{reshapeLong}
 \title{Reshape Grouped Data to Long}
 \usage{
-reshapeLong(dataset = cs.in.dataset(), preds = cs.in.predictors(),
-  resps = cs.in.responses(), scriptvars = cs.in.scriptvars(),
-  return.results = FALSE, ...)
+reshapeLong(
+  dataset = cs.in.dataset(),
+  preds = cs.in.predictors(),
+  resps = cs.in.responses(),
+  scriptvars = cs.in.scriptvars(),
+  return.results = FALSE,
+  ...
+)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
@@ -33,7 +38,8 @@ Additional arguments to be passed to
 . Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
-Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+  if \code{return.results = TRUE}, \code{\link{list}} of 
   resulting \code{\link{data.frame}} object:
   \item{reshapeLong}{Dataset with reshaped data.}
 }

@@ -4,9 +4,13 @@
 \alias{randomForestPredict}
 \title{Random Forest Prediction}
 \usage{
-randomForestPredict(dataset = cs.in.dataset(),
-  preds = cs.in.predictors(), robject = cs.in.Robject(),
-  return.results = FALSE, ...)
+randomForestPredict(
+  dataset = cs.in.dataset(),
+  preds = cs.in.predictors(),
+  robject = cs.in.Robject(),
+  return.results = FALSE,
+  ...
+)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
@@ -18,7 +22,7 @@ Character vector of predictor variables.}
 \item{robject}{[\code{list}]\cr
 Named list of 
 \code{\link[ranger]{ranger}}
-objects set via Cornerstone menu "Input R Objects".}
+object(s) set via Cornerstone menu "Input R Objects".}
 
 \item{return.results}{[\code{logical(1)}]\cr
 If \code{FALSE} the function returns \code{TRUE} invisibly.
@@ -31,10 +35,11 @@ Additional arguments to be passed to
 . Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
-Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+  if \code{return.results = TRUE}, \code{\link{list}} of 
   resulting \code{\link{data.frame}} objects:
   \item{predictions}{
-    Brushable dataset with predicted values for \code{dataset}. The original input and other
+    Dataset to brush with predicted values for \code{dataset}. The original input and other
     columns can be added to this dataset through the menu \code{Columns -> Add from Parent ...}.
   }
 }

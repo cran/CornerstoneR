@@ -4,9 +4,15 @@
 \alias{randomForest}
 \title{Random Forest}
 \usage{
-randomForest(dataset = cs.in.dataset(), preds = cs.in.predictors(),
-  resps = cs.in.responses(), brush = cs.in.brushed(),
-  scriptvars = cs.in.scriptvars(), return.results = FALSE, ...)
+randomForest(
+  dataset = cs.in.dataset(),
+  preds = cs.in.predictors(),
+  resps = cs.in.responses(),
+  brush = cs.in.brushed(),
+  scriptvars = cs.in.scriptvars(),
+  return.results = FALSE,
+  ...
+)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
@@ -37,15 +43,16 @@ Additional arguments to be passed to
 . Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
-Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+  if \code{return.results = TRUE}, \code{\link{list}} of 
   resulting \code{\link{data.frame}} objects:
   \item{statistics}{General statistics about the random forest.}
   \item{importances}{
-    Variable importances of prediction variables in descending order of importance
+    Variable importance of prediction variables in descending order of importance
     (most important first)
   }
   \item{predictions}{
-    Brushable dataset with predicted values for \code{dataset}. The original input and other
+    Dataset to brush with predicted values for \code{dataset}. The original input and other
     columns can be added to this dataset through the menu \code{Columns -> Add from Parent ...}.
   }
   \item{confusion}{
@@ -67,7 +74,7 @@ The following script variables are summarized in \code{scriptvars} list:\cr
       Use \code{brush} vector as additional predictor.\cr
       Default is \code{FALSE}.}
     \item{use.rows}{[\code{character(1)}]\cr
-      Rows to use in model fit. Possible values are \code{all}, \code{unbrushed}, or 
+      Rows to use in model fit. Possible values are \code{all}, \code{non-brushed}, or 
       \code{brushed}.\cr
       Default is \code{all}.}
     \item{num.trees}{[\code{integer(1)}]\cr
@@ -86,7 +93,7 @@ The following script variables are summarized in \code{scriptvars} list:\cr
 res = randomForest(iris, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), "Species"
                    , scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
                                        , importance.mode = "permutation"
-                                       , respect.unordered.factors = "NULL"
+                                       , respect.unordered.factors = "ignore"
                                        )
                    , brush = rep(FALSE, nrow(iris)), return.results = TRUE
                    )

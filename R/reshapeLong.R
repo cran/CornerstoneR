@@ -18,7 +18,8 @@
 #'       Split character to split response names into multiple columns. Default is \dQuote{_}.}
 #'   }
 #' @return
-#'   Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+#'   Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+#'   if \code{return.results = TRUE}, \code{\link{list}} of 
 #'   resulting \code{\link{data.frame}} object:
 #'   \item{reshapeLong}{Dataset with reshaped data.}
 #' @export
@@ -39,13 +40,13 @@ reshapeLong = function(dataset = cs.in.dataset()
                        ) {
   # sanity checks
   assertDataFrame(dataset)
-  assertCharacter(preds, any.missing = FALSE, min.len = 1)
+  assertCharacter(preds, any.missing = FALSE)
   assertCharacter(resps, any.missing = FALSE, min.len = 1)
-  assertSubset(names(dataset), choices = c(preds, resps))
+  assertSetEqual(names(dataset), c(preds, resps))
   # check protected names in dataset, conflicts with data.table usage are possible
   assertDisjunct(names(dataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertList(scriptvars, len = 1)
-  assertString(scriptvars$split, min.chars = 1)
+  assertString(scriptvars$split, min.chars = 0)
   assertFlag(return.results)
   
   # convert to data.table
@@ -62,7 +63,7 @@ reshapeLong = function(dataset = cs.in.dataset()
   # id.vars = preds, value.var = resps
   res = data.table::melt(  data = dtDataset
                          , id.vars = preds
-                         , mesure.vars = resps
+                         , measure.vars = resps
                          , ...
                          )
   if (nchar(scriptvars$split) > 0) {

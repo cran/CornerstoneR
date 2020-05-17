@@ -146,3 +146,66 @@ createCSFunctions = function(env = parent.frame()) {
 
   invisible(TRUE)
 }
+
+getMatchingNames = function(names) {
+  assertCharacter(names, any.missing = FALSE, unique = TRUE)
+  # check for backticks
+  if (!all(grepl("^(?!`).*(?<!`)$", names, perl = TRUE))) {
+    stop("No variable name may start or end with backticks (`).")
+  }
+  
+  # due to non-sense notes in R CMD check
+  valid = NULL
+  
+  # generate valid names
+  dtNames = data.table(original = names)
+  dtNames[, valid := make.names(names, unique = TRUE)]
+  # check for .. and replace by XYZ
+  if (any(grepl("^\\.\\.$", dtNames$valid))) {
+    dtNames$valid[grep("^\\.\\.$", dtNames$valid)] = "XYZ"
+    dtNames[, valid := make.names(valid, unique = TRUE)]
+  }
+  
+  return(dtNames)
+}
+
+setMatchingNames = function(names, table, to.original = FALSE, in.text = FALSE) {
+  assertCharacter(names, any.missing = FALSE)
+  assertDataTable(table, types = "character", ncols = 2)
+  assertSetEqual(names(table), c("original", "valid"))
+  assertFlag(to.original)
+  assertFlag(in.text)
+  
+  if (in.text) {
+    # replace names within text
+    if (to.original) {
+      if (any(grepl("`", names))) {
+        stop("Valid text may not contain backticks (`).")
+      }
+      for (irow in seq_len(nrow(table))) {
+        names = gsub(table$valid[irow], paste0("`", table$original[irow], "`"), names)
+      }
+    } else {
+      for (irow in seq_len(nrow(table))) {
+        names = gsub(paste0("`", table$original[irow], "`"), table$valid[irow], names)
+      }
+    }
+  } else {
+    # replace complete atomic characters
+    # direct data.table access not feasible because order must fit to 'names'
+    if (to.original) {
+      # unavailable names stay as they are
+      ids.names = sort(stats::na.omit(match(table$valid, names)))
+      ids.table = stats::na.omit(match(names, table$valid))
+      if (length(ids.names) > 0) {
+        names[ids.names] = table$original[ids.table]
+      }
+    } else {
+      # all names must occur in the table
+      assertSubset(names, table$original)
+      names = table$valid[match(names, table$original)]
+    }
+  }
+  
+  return(names)
+}

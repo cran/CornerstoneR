@@ -1,3 +1,15 @@
+# CornerstoneR 2.0.0-9000
+- Add vignettes for all functions.
+- Add function 'matchNearestNeighbor'.
+- Add function 'redirectDataset'.
+- Add function 'reshapeTranspose'.
+- Update 'mosaicPlot' to multi response and return of long contingency table.
+- Update 'fitFunction' to minpack.lm with its Levenberg-Marquardt algorithm.
+- Update 'fitFunction' to multiple groups.
+- Update 'reshapeLong' UI for more intuitive behavior (switch predictors and groups).
+- Update 'reshapeWide' with aggregation functions.
+- Fixed various bugs
+
 # CornerstoneR 1.1.1
 - Cleanup DESCRIPTION
 

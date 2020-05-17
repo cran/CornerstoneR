@@ -2,12 +2,18 @@
 % Please edit documentation in R/fitFunction.R
 \name{fitFunction}
 \alias{fitFunction}
-\title{Fit Function to Data via nls}
+\title{Fit Function to Data via Nonlinear Regression}
 \usage{
-fitFunction(dataset = cs.in.dataset(), preds = cs.in.predictors(),
-  resps = cs.in.responses(), groups = cs.in.groupvars(),
-  auxs = cs.in.auxiliaries(), scriptvars = cs.in.scriptvars(),
-  return.results = FALSE, ...)
+fitFunction(
+  dataset = cs.in.dataset(),
+  preds = cs.in.predictors(),
+  resps = cs.in.responses(),
+  groups = cs.in.groupvars(),
+  auxs = cs.in.auxiliaries(),
+  scriptvars = cs.in.scriptvars(),
+  return.results = FALSE,
+  ...
+)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
@@ -40,16 +46,24 @@ Additional arguments to be passed to
 . Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
-Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+  if \code{return.results = TRUE}, \code{\link{list}} of 
   resulting \code{\link{data.frame}} objects:
-  \item{coeff}{Estimated coefficients and standard errors for every variable.}
+  \item{coeff}{Estimated coefficients and standard errors for each group.
+    Convergence information is available for every group (for details see
+    \code{link[minpack.lm]{nls.lm}}).
+  }
+  \item{vcov}{Variance-Covariance matrix of the main coefficients for the fitted model of each
+    group (for details see \code{link[stats]{vcov}}).
+  }
   \item{predictions}{
-    Brushable dataset with predictions and residuals added to original values and groups,
+    Dataset to brush with predictions and residuals added to original values and groups,
     if available.
   }
 }
 \description{
-Fit predefined functions to data via nonlinear least squares using \code{\link{nls}}.
+Fit predefined functions to data via nonlinear least squares using Levenberg-Marquardt
+  algorithm via \code{\link[minpack.lm]{nlsLM}}.
 }
 \details{
 The following script variables are summarized in \code{scriptvars} list:\cr
@@ -59,20 +73,29 @@ The following script variables are summarized in \code{scriptvars} list:\cr
       compose a model manually by selecting \code{User Defined}.\cr
       Default is \code{User Defined}}
     \item{preds.frml}{[\code{character(1)}]\cr
-      Only required if \code{math.fun} is set to \code{User Defined}.
+      Required if \code{math.fun} is set to \code{User Defined}.
       Valid R \code{\link{formula}} for the right hand side (predictors) of the model equation.}
     \item{resp.frml}{[\code{character(1)}]\cr
-      Only required if \code{math.fun} is set to \code{User Defined}.
+      Required if \code{math.fun} is set to \code{User Defined}.
       Valid R \code{\link{formula}} for the left hand side (response) of the model equation.}
+    \item{limits}{[\code{character(1)}]\cr
+      Optional if \code{math.fun} is set to \code{User Defined}.
+      Specifies minimum and maximum value for function \code{math.fun} as a comma separated list
+      of \code{min} and \code{max}.
+      It is possible to assign variables, e.g. \code{min=a}, which need start values in
+      \code{start.vals}, as well as real numbers, e.g. \code{min=4.5}, with a period as decimal
+      separator.}
     \item{start.vals}{[\code{character(1)}]\cr
-      Only required if \code{math.fun} is set to \code{User Defined}.
+      Required if \code{math.fun} is set to \code{User Defined}.
       Specify starting values for all terms of the right hand side as a comma separated list
       with a period as decimal separator.}
     \item{weights}{[\code{character(1)}]\cr
       Select a weighting variable from the auxiliary variables.}
-    \item{algo.nls}{[\code{character(1)}]\cr
-      Specifies the algorithm to use. For details see \code{\link{nls}}.\cr
-      Default is \code{plinear}.}
+    \item{max.iter}{Maximum number of iterations.
+      For details see \code{link[minpack.lm]{nls.lm.control}}}
+    \item{max.ftol}{Maximum relative error desired in the sum of squares. If \code{0},
+      the default is used.
+      For details see \code{link[minpack.lm]{nls.lm.control}}}
   }
 }
 \examples{
@@ -87,13 +110,15 @@ dt = data.table(  x1 = sample(seq(-10, 10, length.out = 100))
 dt[group1 == "A", y1 := fun(x1, 1, 10, 1, 0.6, 0.1)]
 dt[group1 == "B", y1 := fun(x1, 8, 2, -1, 0.3, 0.1)]
 # Set script variables
-scriptvars = list(math.fun = "Logistic", resp.frml = "", preds.frml = ""
-                  , start.vals = "", weights = "", algo.nls = "default"
+scriptvars = list(math.fun = "Logistic", resp.frml = "", preds.frml = "", limits = ""
+                  , start.vals = "", weights = "", max.iter = 50, max.ftol = 0
                   )
 # Fit the logistic function:
-res = fitFunction(dt, "x1", "y1", "group1", "", scriptvars, TRUE)
+res = fitFunction(dt, "x1", "y1", "group1", character(0), scriptvars, TRUE)
 # Show estimated coefficients:
 res$coeff
+# Variance-Covariance matrix:
+res$vcov
 # Plot fitted vs. residuals:
 plot(res$predictions$Fitted, res$predictions$Residuals)
 }

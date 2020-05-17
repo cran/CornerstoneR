@@ -6,7 +6,7 @@ test_that("Classification", {
   
   # default settings for script variables
   scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
-                    , importance.mode = "permutation", respect.unordered.factors = "NULL"
+                    , importance.mode = "permutation", respect.unordered.factors = "ignore"
                     )
   
   # create CS-R output
@@ -27,7 +27,7 @@ test_that("Classification", {
   expect_numeric(res$importances$Importance, lower = 0, upper = 0.5)
   expect_set_equal(res$importances$Variable, c("Petal.Width", "Petal.Length", "Sepal.Length", "Sepal.Width"))
   expect_equal(res$predictions$Species, iris$Species)
-  expect_equal(sum(res$predictions$Obs.Species), 150)
+  expect_equal(sum(res$predictions$Used.Species), 150)
   expect_equal(sum(res$predictions$Resid.Species), 0)
   expect_equal(res$confusions$Species$N, c(rep(50, 3), rep(0, 6)))
   
@@ -35,7 +35,7 @@ test_that("Classification", {
   set.seed(1619)
   createCSEnvir(iris[, c(1:3, 5)], blnBrush = sample(c(!logical(100), logical(50)))
                 , strPreds = colnames(iris)[1:3], strResps = colnames(iris)[5]
-                , lstScriptVars = list(brush.pred = FALSE, use.rows = "unbrushed", num.trees = 200
+                , lstScriptVars = list(brush.pred = FALSE, use.rows = "non-brushed", num.trees = 200
                                        , importance.mode = scriptvars$importance.mode
                                        , respect.unordered.factors = scriptvars$respect.unordered.factors
                                        )
@@ -146,7 +146,7 @@ test_that("Regression", {
   
   # default settings for script variables
   scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
-                    , importance.mode = "permutation", respect.unordered.factors = "NULL"
+                    , importance.mode = "permutation", respect.unordered.factors = "ignore"
   )
   
   # create CS-R output
@@ -167,7 +167,7 @@ test_that("Regression", {
   expect_data_table(res$importances, any.missing = FALSE, nrows = 2, ncols = 2)
   expect_equal(res$importances$Variable, c("tension", "wool"))
   expect_numeric(res$importances$Importance, lower = 15, upper = 65)
-  expect_equal(sum(res$predictions$Obs.breaks), 54)
+  expect_equal(sum(res$predictions$Used.breaks), 54)
   expect_equal(res$predictions$breaks, warpbreaks$breaks)
   expect_list(res$confusions, len = 0)
 
@@ -190,7 +190,7 @@ test_that("Multi", {
   
   # default settings for script variables
   scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
-                    , importance.mode = "permutation", respect.unordered.factors = "NULL"
+                    , importance.mode = "permutation", respect.unordered.factors = "ignore"
                     )
   
   # create CS-R output
@@ -219,7 +219,7 @@ test_that("Prediction", {
   
   # default settings for script variables
   scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
-                    , importance.mode = "permutation", respect.unordered.factors = "NULL"
+                    , importance.mode = "permutation", respect.unordered.factors = "ignore"
                     )
   
   # create CS-R output

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <variables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="scriptvariables.xsd">
-  <integer label = "Flowers" name = "num.flowers" min = "1" default = "100"/>
+  <character label = "Remove Pattern" name = "remove.pattern" default = ""/>
 </variables>

@@ -125,7 +125,7 @@ cs.out.emf = function(name = NULL, width = 10, height = 10) {
 }
 
 #' @rdname LocalInterface
-cs.out.png = function(name = NULL, width = 10, height = 10) {
+cs.out.png = function(name = NULL, width = 480, height = 480) {
   if (invokeFromR()) return()
   cs.out.png = get0("cs.out.png", envir = pos.to.env(1))
   cs.out.png(name = name, width = width, height = height)

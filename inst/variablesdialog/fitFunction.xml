@@ -3,7 +3,9 @@
   <choice label = "Mathematical Function" name = "math.fun" options = "User Defined;Logistic" default = "User Defined" />
   <formula label = "Prediction Formula" name = "preds.frml" variables = "p" />
   <formula label = "Response Formula" name = "resp.frml" variables = "r" />
+  <character label = "Limits" name = "limits" default = "min=NA, max=NA" />
   <character label = "Starting Values" name = "start.vals" />
-  <variable label = "Weights" name = "weights" variables = "a"/>
-  <choice label = "Algorithm" name = "algo.nls" options = "default;plinear;port" default = "default" />
+  <variable label = "Weights" name = "weights" variables = "a" />
+  <integer mandatory = "true" label = "Maximum Iterations" name = "max.iter" min = "1" default = "50"/>
+  <float label = "Maximum Error in SS" name = "max.ftol" min = "0" default = "0" />
 </variables>

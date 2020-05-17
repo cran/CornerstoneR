@@ -4,9 +4,16 @@
 \alias{reshapeWide}
 \title{Reshape Grouped Data to Wide}
 \usage{
-reshapeWide(dataset = cs.in.dataset(), preds = cs.in.predictors(),
-  resps = cs.in.responses(), groups = cs.in.groupvars(),
-  scriptvars = cs.in.scriptvars(), return.results = FALSE, ...)
+reshapeWide(
+  dataset = cs.in.dataset(),
+  preds = cs.in.predictors(),
+  resps = cs.in.responses(),
+  groups = cs.in.groupvars(),
+  auxs = cs.in.auxiliaries(),
+  scriptvars = cs.in.scriptvars(),
+  return.results = FALSE,
+  ...
+)
 }
 \arguments{
 \item{dataset}{[\code{\link{data.frame}}]\cr
@@ -20,6 +27,9 @@ Character vector of response variables.}
 
 \item{groups}{[\code{character}]\cr
 Character vector of group variables.}
+
+\item{auxs}{[\code{character}]\cr
+Character vector of auxiliary variables.}
 
 \item{scriptvars}{[\code{list}]\cr
 Named list of script variables set via the Cornerstone "Script Variables" menu.
@@ -36,7 +46,8 @@ Additional arguments to be passed to
 . Please consider possible script variables (\code{scriptvars}) to prevent duplicates.}
 }
 \value{
-Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+  if \code{return.results = TRUE}, \code{\link{list}} of 
   resulting \code{\link{data.frame}} object:
   \item{reshapeWide}{Dataset with reshaped data.}
 }
@@ -50,12 +61,15 @@ Reshaping grouped data via \code{\link[data.table:dcast.data.table]{dcast}} to '
 \details{
 One script variables is summarized in \code{scriptvars} list:\cr
   \describe{
-    \item{nodrop}{[\code{logical(1)}]\cr
-      Drop missing combinations (\code{FALSE}) or include all (\code{TRUE}).
-      Default is \code{FALSE}.}
+    \item{drop}{[\code{logical(1)}]\cr
+      Drop missing combinations (\code{TRUE}) or include all (\code{FALSE}).
+      Default is \code{TRUE}.\cr
+      For details see \code{\link[data.table:dcast.data.table]{dcast}}.}
   }
 }
 \examples{
 # Reshape dataset to wide format:
-reshapeWide(Indometh, "Subject", "time", "conc", list(nodrop = FALSE), return.results = TRUE)
+reshapeWide(Indometh, "time", "conc", "Subject", character(0)
+            , list(drop = TRUE, aggr.fun = "mean"), return.results = TRUE
+            )
 }

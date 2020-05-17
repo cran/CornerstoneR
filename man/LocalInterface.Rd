@@ -51,7 +51,7 @@ cs.out.dataset(data, name = NA, brush = FALSE)
 
 cs.out.emf(name = NULL, width = 10, height = 10)
 
-cs.out.png(name = NULL, width = 10, height = 10)
+cs.out.png(name = NULL, width = 480, height = 480)
 
 cs.out.Robject(R_object, name = NA)
 }

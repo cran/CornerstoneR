@@ -12,10 +12,11 @@
 #' @templateVar packagelink \code{\link[ranger]{ranger}}
 #' @template threedots
 #' @return
-#'   Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+#'   Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+#'   if \code{return.results = TRUE}, \code{\link{list}} of 
 #'   resulting \code{\link{data.frame}} objects:
 #'   \item{predictions}{
-#'     Brushable dataset with predicted values for \code{dataset}. The original input and other
+#'     Dataset to brush with predicted values for \code{dataset}. The original input and other
 #'     columns can be added to this dataset through the menu \code{Columns -> Add from Parent ...}.
 #'   }
 #' @seealso \code{\link{randomForest}}
@@ -31,7 +32,7 @@ randomForestPredict = function(dataset = cs.in.dataset()
   # sanity checks
   assertCharacter(preds, any.missing = FALSE, min.len = 1)
   assertDataTable(dtDataset)
-  assertSubset(names(dtDataset), choices = preds)
+  assertSetEqual(names(dtDataset), preds)
   # check protected names in dataset, conflicts with data.table usage are possible
   assertDisjunct(names(dtDataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertDataTable(dtDataset[, preds, with = FALSE], any.missing = FALSE)
@@ -55,7 +56,7 @@ randomForestPredict = function(dataset = cs.in.dataset()
   
   # check variable names of rf with preds
   for (resp in resps) {
-    assertSubset(robject[[resp]]$independent.variable.names, choices = preds)
+    assertSetEqual(robject[[resp]]$independent.variable.names, preds)
   }
   
   # init resulting data.table
@@ -65,7 +66,7 @@ randomForestPredict = function(dataset = cs.in.dataset()
   # predict all random forests
   for (resp in resps) {
     if (testClass(robject[[resp]], "ranger") | testClass(robject[[resp]], "ranger.forest")) {
-      predictions[, (resp) := predict(robject[[resp]], dtDataset, ...)$predictions]
+      predictions[, (resp) := stats::predict(robject[[resp]], dtDataset, ...)$predictions]
     }
   }
   # delete init column

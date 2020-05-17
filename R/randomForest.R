@@ -17,7 +17,7 @@
 #'       Use \code{brush} vector as additional predictor.\cr
 #'       Default is \code{FALSE}.}
 #'     \item{use.rows}{[\code{character(1)}]\cr
-#'       Rows to use in model fit. Possible values are \code{all}, \code{unbrushed}, or 
+#'       Rows to use in model fit. Possible values are \code{all}, \code{non-brushed}, or 
 #'       \code{brushed}.\cr
 #'       Default is \code{all}.}
 #'     \item{num.trees}{[\code{integer(1)}]\cr
@@ -31,15 +31,16 @@
 #'       Default is \code{NULL}.}
 #'   }
 #' @return
-#'   Logical [\code{TRUE}] invisibly or, if \code{return.results = TRUE}, \code{\link{list}} of 
+#'   Logical [\code{TRUE}] invisibly and outputs to Cornerstone or, 
+#'   if \code{return.results = TRUE}, \code{\link{list}} of 
 #'   resulting \code{\link{data.frame}} objects:
 #'   \item{statistics}{General statistics about the random forest.}
 #'   \item{importances}{
-#'     Variable importances of prediction variables in descending order of importance
+#'     Variable importance of prediction variables in descending order of importance
 #'     (most important first)
 #'   }
 #'   \item{predictions}{
-#'     Brushable dataset with predicted values for \code{dataset}. The original input and other
+#'     Dataset to brush with predicted values for \code{dataset}. The original input and other
 #'     columns can be added to this dataset through the menu \code{Columns -> Add from Parent ...}.
 #'   }
 #'   \item{confusion}{
@@ -56,7 +57,7 @@
 #' res = randomForest(iris, c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width"), "Species"
 #'                    , scriptvars = list(brush.pred = FALSE, use.rows = "all", num.trees = 500
 #'                                        , importance.mode = "permutation"
-#'                                        , respect.unordered.factors = "NULL"
+#'                                        , respect.unordered.factors = "ignore"
 #'                                        )
 #'                    , brush = rep(FALSE, nrow(iris)), return.results = TRUE
 #'                    )
@@ -81,18 +82,16 @@ randomForest = function(dataset = cs.in.dataset()
   assertCharacter(resps, any.missing = FALSE)
   assertLogical(brush, any.missing = FALSE, len = nrow(dtDataset))
   assertDataTable(dtDataset)
-  assertSubset(names(dtDataset), choices = c(preds, resps))
+  assertSetEqual(names(dtDataset), c(preds, resps))
   # check protected names in dataset, conflicts with data.table usage are possible
   assertDisjunct(names(dtDataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertDataTable(dtDataset[, preds, with = FALSE], any.missing = FALSE)
   assertList(scriptvars, len = 5)
   assertFlag(scriptvars$brush.pred)
-  assertChoice(scriptvars$use.rows, c("all", "unbrushed", "brushed"))
+  assertChoice(scriptvars$use.rows, c("all", "non-brushed", "brushed"))
   assertCount(scriptvars$num.trees, positive = TRUE)
   assertChoice(scriptvars$importance.mode, c("impurity", "impurity_corrected", "permutation"))
-  assertChoice(scriptvars$respect.unordered.factors, c("NULL", "ignore", "order", "partition"))
-  if (scriptvars$respect.unordered.factors == "NULL")
-    scriptvars$respect.unordered.factors = NULL
+  assertChoice(scriptvars$respect.unordered.factors, c("ignore", "order", "partition"))
   assertFlag(return.results)
   
   # update to valid names
@@ -116,7 +115,7 @@ randomForest = function(dataset = cs.in.dataset()
   }
   
   # on missing response: add brush to data and use it as response
-  # use all rows, not brushed or unbrushed
+  # use all rows, not brushed or non-brushed
   if (length(resps) == 0) {
     dtDataset[, brushed := as.factor(brush)]
     resps = "brushed"
@@ -126,7 +125,7 @@ randomForest = function(dataset = cs.in.dataset()
   # subsetting data via brush
   if (use.rows == "all") {
     brush[] = TRUE
-  } else if (use.rows == "unbrushed") {
+  } else if (use.rows == "non-brushed") {
     brush = !brush
   }
   
@@ -160,7 +159,7 @@ randomForest = function(dataset = cs.in.dataset()
   predictions = data.table(logical(ndata))
   colnames(predictions) = paste(c("V", resps), collapse = "")
   for (resp in resps) {
-    predictions[, (paste0("Obs.", resp)) := logical(ndata)]
+    predictions[, (paste0("Used.", resp)) := logical(ndata)]
     if (testFactor(dtDataset[[resp]])) {
       predictions[, (resp) := character(ndata)]
       predictions[, (paste0("Pred.", resp)) := character(ndata)]
@@ -180,9 +179,9 @@ randomForest = function(dataset = cs.in.dataset()
     time.start = Sys.time()
     
     # create formula: response vs. all other variables
-    model = as.formula(paste0(resp, " ~ ", paste(preds, collapse = "+")))
+    model = stats::as.formula(paste0(resp, " ~ ", paste(preds, collapse = "+")))
     # fit the random forest on subset with removed NAs
-    rf = ranger::ranger(model, na.omit(dtDataset[brush], cols = resp)
+    rf = ranger::ranger(model, stats::na.omit(dtDataset[brush], cols = resp)
                         , num.trees = scriptvars$num.trees
                         , importance = scriptvars$importance.mode
                         , respect.unordered.factors = scriptvars$respect.unordered.factors
@@ -202,13 +201,13 @@ randomForest = function(dataset = cs.in.dataset()
     } else {
       statistics[resps == resp, c("oobpredmse", "oobr2") := list(rf$prediction.error, rf$r.squared)]
     }
-    # get variable importances
+    # get variable importance
     importances[resps == resp, names(rf$variable.importance) := as.list(rf$variable.importance)]
     # calculate predictions table
-    predictions[, (paste0("Obs.", resp)) := !is.na(dtDataset[, resp, with = FALSE]) & brush]
+    predictions[, (paste0("Used.", resp)) := !is.na(dtDataset[, resp, with = FALSE]) & brush]
     predictions[, (resp) := dtDataset[, resp, with = FALSE]]
     pred.resp = paste0("Pred.", resp)
-    predictions[, (pred.resp) := data.table(predict(rf, dtDataset)$predictions)]
+    predictions[, (pred.resp) := data.table(stats::predict(rf, dtDataset)$predictions)]
     if (testFactor(dtDataset[[resp]])) {
       predictions[, (paste0("Resid.", resp)) := eval(as.name(resp)) != eval(as.name(pred.resp))]
     } else {
@@ -258,14 +257,14 @@ randomForest = function(dataset = cs.in.dataset()
   
   # Export to Cornerstone
   cs.out.dataset(statistics, "Statistics")
-  cs.out.dataset(importances, "Variable Importances")
+  cs.out.dataset(importances, "Variable Importance")
   cs.out.dataset(predictions, "Predictions", brush = TRUE)
   for (i in names(confusions)) {
     cs.out.dataset(confusions[[i]]
                    , paste0("Confusion Table", ifelse(length(resps) == 1, "", paste0(" (", i, ")")))
                    )
   }
-  cs.out.Robject(rgobjects, "RF models")
+  cs.out.Robject(rgobjects, "RF Models")
   
   # return results
   if (return.results) {
