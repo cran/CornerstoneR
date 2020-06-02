@@ -45,6 +45,7 @@ matchNearestNeighbor = function(dataset = cs.in.dataset()
   assertDisjunct(names(dtDataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertDataTable(dtDataset[, preds, with = FALSE], types = "numeric")
   assertList(robject, any.missing = FALSE, min.len = 1)
+  assertFlag(return.results)
   
   # update to valid names
   preds = make.names(preds)

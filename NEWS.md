@@ -1,4 +1,8 @@
-# CornerstoneR 2.0.0-9000
+# CornerstoneR 2.0.1
+- Add function 'showVersions' to display R and CornerstoneR versions.
+- Fix 'reshapeWide' aggregation functions.
+
+# CornerstoneR 2.0.0
 - Add vignettes for all functions.
 - Add function 'matchNearestNeighbor'.
 - Add function 'redirectDataset'.

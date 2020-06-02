@@ -51,7 +51,9 @@ reshapeWide = function(dataset = cs.in.dataset()
   assertDisjunct(names(dataset), c("pred", "preds", "resp", "resps", "group", "groups", "brush", "brushed"))
   assertList(scriptvars, len = 2)
   assertFlag(scriptvars$drop)
-  assertString(scriptvars$aggr.fun, min.chars = 1)
+  assertString(scriptvars$aggr.fun)
+  if (scriptvars$aggr.fun == "")
+    scriptvars$aggr.fun = "first"
   assertFlag(return.results)
   
   # convert to data.table
@@ -82,9 +84,6 @@ reshapeWide = function(dataset = cs.in.dataset()
   aggr.fun.name[bln.byfuns] = NULL
   # check whether columns exist
   assertSubset(vapply(aggr.fun.nameby, tail, character(1), n = 1L), names(dtDataset))
-  # check existance
-  if (!all(vapply(aggr.fun.name, exists, FUN.VALUE = logical(1))))
-    stop("All aggregation functions in script variables have to be valid R functions.")
   # add deletethis column, if only one function is chosen
   # workaround to get named columns with data.table directly
   # see https://stackoverflow.com/questions/59409675/how-to-use-data-table-dcast-renaming-on-one-aggregation-function?noredirect=1#comment105012256_59409675

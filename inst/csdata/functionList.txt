@@ -10,3 +10,5 @@ reshapeWide;Reshape to Wide;reshape.html
 reshapeLong;Reshape to Long;reshape.html
 reshapeTranspose;Transpose Data;reshape.html
 redirectDataset;Redirect Dataset to R Object;redirectDataset.html
+---
+showVersions;Show Versions;showVersions.html

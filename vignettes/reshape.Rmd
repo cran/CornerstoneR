@@ -29,7 +29,8 @@ column, one response column, and one grouping column. An example is the 'Indomet
 its first six rows shown in the following table.
 
 ```{r Indometh, echo=FALSE, results='asis'}
-knitr::kable(head(Indometh), caption = "First six Rows of Indometh Dataset")
+IndomethParts = rbind(head(Indometh, 3), head(Indometh[Indometh$Subject == 4, ], 3))
+knitr::kable(IndomethParts, caption = "Rows 1-3 and 34-36 of Indometh Dataset")
 ```
 
 Our target is to reshape this table into a dataset with a row for each 'Subject' and columns for
@@ -38,7 +39,7 @@ result should look like the following table (first 5 columns).
 
 ```{r Indometh wide, echo=FALSE, results='asis'}
 Indometh.wide = CornerstoneR::reshapeWide(Indometh, "time", "conc", "Subject", character(0)
-                                          , list(drop = TRUE, aggr.fun = "mean"), return.results = TRUE
+                                          , list(drop = TRUE, aggr.fun = ""), return.results = TRUE
                                           )
 knitr::kable(Indometh.wide$reshapeWide[, 1:5], caption = "Indometh Dataset in Wide Format")
 ```
@@ -96,7 +97,7 @@ The default is checked.
 
 ### 'Aggregation'
 The text box can hold a comma separated list of aggregation function.
-The default is 'mean'.
+The default is empty, which is equivalent to 'first'.
 If you select variables as 'Auxiliaries' in the variable selection menu they are shown in the
 drop-down box right from the '<<' button.
 
@@ -113,17 +114,19 @@ knitr::kable(Indometh.man, caption = "Example Dataset with Repetitions")
 
 The aggregation function is used if one response data is not identifiable by the combination of 
 predictors and groups. In case Subject 1 for time 0.25 was measured three times. We obtain the 
-following result using the aggregation function 'mean' and 'sd'
+following result using the aggregation function 'first', 'mean', and 'sd'
 
 ```{r IndomethAggrMean, echo=FALSE, results='asis'}
 Indometh.man.wide = CornerstoneR::reshapeWide(Indometh.man[, 1:3], "time", "conc", "Subject", character(0)
-                                          , list(drop = TRUE, aggr.fun = "mean, sd"), return.results = TRUE
+                                          , list(drop = TRUE, aggr.fun = "first, mean, sd"), return.results = TRUE
                                           )
 knitr::kable(Indometh.man.wide$reshapeWide, caption = "Example Dataset in Wide Format")
 ```
 
 As you can see new columns are added for each additional aggregation function, in this example
-'mean, sd'.
+'first, mean, sd'.
+Function 'first' returns the first value of the three 'conc' measurements 1.50, 1.67, and 1.58.
+Followed by its mean value 'mean' and standard deviation 'sd'.
 
 How is an auxiliary variable used in this case? In case of repeated measurements it can bee 
 necessary to select the last or first repetition.
@@ -140,6 +143,10 @@ Indometh.man.wide = CornerstoneR::reshapeWide(Indometh.man, "time", "conc", "Sub
                                           )
 knitr::kable(Indometh.man.wide$reshapeWide, caption = "Example Dataset in Wide Format")
 ```
+
+In general it is possible to use all available 'R' functions. Each function should return one
+value like the 'mean' or 'sd' function. Function which return more than one value, e.g. 'head',
+can work but it is not defined which value is shown in Cornerstone.
 
 
 # Reshape Grouped Data to Long

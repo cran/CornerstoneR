@@ -93,6 +93,24 @@ test_that("CastWide", {
   expect_equal(res$reshapeWide$conc_mean_1, head(Indometh$conc, 11))
   expect_equal(res$reshapeWide$conc_mean_6, tail(Indometh$conc, 11))
   
+  # missing aggregation function
+  scriptvars1 = scriptvars
+  scriptvars1$aggr.fun = ""
+  createCSEnvir(Indometh
+                , strPreds = colnames(Indometh)[2], strResps = colnames(Indometh)[3]
+                , strGroups = colnames(Indometh)[1]
+                , lstScriptVars = scriptvars1
+                , env = env
+                )
+  # init cs.* functions (only necessary for local call)
+  createCSFunctions(env = env)
+  expect_true(reshapeWide())
+  res = reshapeWide(return.results = TRUE)
+  expect_data_table(res$reshapeWide, nrows = 11, ncols = 7)
+  expect_equal(colnames(res$reshapeWide)[c(1, 2, 7)], c("time", "conc_first_1", "conc_first_3"))
+  expect_equal(res$reshapeWide$conc_first_1, head(Indometh$conc, 11))
+  expect_equal(res$reshapeWide$conc_first_6, tail(Indometh$conc, 11))
+  
   # additional response
   IndoExt = cbind(Indometh, rnd = rnorm(66))
   createCSEnvir(IndoExt
@@ -159,7 +177,7 @@ test_that("CastWide", {
                 , lstScriptVars = scriptvars1
                 , env = env
                 )
-  expect_error(reshapeWide(), "aggregation functions")
+  expect_error(reshapeWide(), "notdefinedfunction")
   # carstats aggregation by other column, check assertion
   scriptvars1 = scriptvars
   scriptvars1$aggr.fun = "mean, minby(Weight), sd, maxby(Blup)"

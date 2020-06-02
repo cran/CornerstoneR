@@ -1,5 +1,5 @@
 Package: CornerstoneR
-Version: 2.0.0
+Version: 2.0.1
 Title: Collection of Scripts for Interface Between 'Cornerstone' and
         'R'
 Description: Collection of generic 'R' scripts which enable you to use existing 'R' routines in 'Cornerstone'.
@@ -40,8 +40,8 @@ LazyData: yes
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-05-16 13:28:09 UTC; surmannd
+Packaged: 2020-06-02 10:05:06 UTC; surmannd
 Author: Dirk Surmann [aut, cre] (<https://orcid.org/0000-0003-0873-137X>)
 Maintainer: Dirk Surmann <dirk.surmann@camline.academy>
 Repository: CRAN
-Date/Publication: 2020-05-17 22:40:09 UTC
+Date/Publication: 2020-06-02 10:30:02 UTC

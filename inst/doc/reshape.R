@@ -4,11 +4,12 @@
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ----Indometh, echo=FALSE, results='asis'-------------------------------------
-knitr::kable(head(Indometh), caption = "First six Rows of Indometh Dataset")
+IndomethParts = rbind(head(Indometh, 3), head(Indometh[Indometh$Subject == 4, ], 3))
+knitr::kable(IndomethParts, caption = "Rows 1-3 and 34-36 of Indometh Dataset")
 
 ## ----Indometh wide, echo=FALSE, results='asis'--------------------------------
 Indometh.wide = CornerstoneR::reshapeWide(Indometh, "time", "conc", "Subject", character(0)
-                                          , list(drop = TRUE, aggr.fun = "mean"), return.results = TRUE
+                                          , list(drop = TRUE, aggr.fun = ""), return.results = TRUE
                                           )
 knitr::kable(Indometh.wide$reshapeWide[, 1:5], caption = "Indometh Dataset in Wide Format")
 
@@ -40,7 +41,7 @@ knitr::kable(Indometh.man, caption = "Example Dataset with Repetitions")
 
 ## ----IndomethAggrMean, echo=FALSE, results='asis'-----------------------------
 Indometh.man.wide = CornerstoneR::reshapeWide(Indometh.man[, 1:3], "time", "conc", "Subject", character(0)
-                                          , list(drop = TRUE, aggr.fun = "mean, sd"), return.results = TRUE
+                                          , list(drop = TRUE, aggr.fun = "first, mean, sd"), return.results = TRUE
                                           )
 knitr::kable(Indometh.man.wide$reshapeWide, caption = "Example Dataset in Wide Format")
 

@@ -1,4 +1,4 @@
-context("Function List")
+context("Miscellaneous")
 
 test_that("Function List", {
   # read namespace and extract exported functions
@@ -12,4 +12,15 @@ test_that("Function List", {
   expect_data_frame(funlist[, 1:2], any.missing = FALSE)
   # compare functions to namespace
   expect_set_equal(funlist[, 1], c(funnamespace[status == "export", fun], "---"))
+})
+
+test_that("Internal Version", {
+  CSRnews = news(package = "CornerstoneR")
+  expect_equal(head(CSRnews$Version, 1), as.character(packageVersion("CornerstoneR")))
+})
+
+test_that("Versions Dataset", {
+  expect_true(showVersions())
+  res = showVersions(return.results = TRUE)
+  expect_data_table(res$versions, nrows = 3, ncols = 2)
 })
