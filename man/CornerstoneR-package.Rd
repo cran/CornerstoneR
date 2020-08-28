@@ -8,14 +8,14 @@
 \description{
 Collection of generic 'R' scripts which enable you to use existing 'R' routines in 'Cornerstone'.
 
-     The desktop application 'Cornerstone' (<https://www.camline.com/en/products/cornerstone/cornerstone-core.html>)
+      The desktop application 'Cornerstone' (<https://www.camline.com/en/products/cornerstone/cornerstone-core.html>)
     is a data analysis software provided by 'camLine' that empowers engineering teams to find solutions even faster.
     The engineers incorporate intensified hands-on statistics into their projects.
     They benefit from an intuitive and uniquely designed graphical Workmap concept: you design
     experiments (DoE) and explore data, analyze dependencies, and find answers you can act upon,
     immediately, interactively, and without any programming.
 
-     While 'Cornerstone's' interface to the statistical programming language 'R' has been available
+      While 'Cornerstone's' interface to the statistical programming language 'R' has been available
     since version 6.0, the latest interface with 'R' is even much more efficient.
     'Cornerstone' release 7.1.1 allows you to integrate user defined 'R' packages directly into the
     standard 'Cornerstone' GUI.
@@ -24,18 +24,23 @@ Collection of generic 'R' scripts which enable you to use existing 'R' routines 
     Additionally, your 'R' programming team develops corresponding 'R' packages detached from
     'Cornerstone' in their favorite 'R' environment.
 
-     Learn how to use 'R' packages in 'Cornerstone' 7.1.1 on 'camLineTV' YouTube channel 
+      Learn how to use 'R' packages in 'Cornerstone' 7.1.1 on 'camLineTV' YouTube channel 
     (<https://www.youtube.com/watch?v=HEQHwq_laXU>) (available in German).
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://gitlab.com/camLine/CornerstoneR}
-  \item Report bugs at \url{https://gitlab.com/camLine/CornerstoneR/issues}
+  \item \url{https://gitlab.com/camLine/CornerstoneR/-/issues}
+  \item Report bugs at \url{https://gitlab.com/camLine/CornerstoneR/-/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Dirk Surmann \email{dirk.surmann@camline.academy} (\href{https://orcid.org/0000-0003-0873-137X}{ORCID})
+\strong{Maintainer}: Gerrith Djaja \email{gerrith.djaja@camline.com}
+
+Authors:
+\itemize{
+  \item Dirk Surmann \email{surmann@statistik.tu-dortmund.de} (\href{https://orcid.org/0000-0003-0873-137X}{ORCID})
+}
 
 }

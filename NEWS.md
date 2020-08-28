@@ -1,3 +1,7 @@
+# CornerstoneR 2.0.2
+- Fixed various bugs
+- Update maintainer
+
 # CornerstoneR 2.0.1
 - Add function 'showVersions' to display R and CornerstoneR versions.
 - Fix 'reshapeWide' aggregation functions.

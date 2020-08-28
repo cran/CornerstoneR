@@ -52,6 +52,6 @@ NULL
 #' @references 
 #'   Dawson, Robert J. MacG. (1995), The Unusual Episode Data Revisited. 
 #'   \emph{Journal of Statistics Education}, \strong{3}. 
-#'   \url{https://www.amstat.org/publications/jse/v3n3/datasets.dawson.html}
+#'   \url{ http://jse.amstat.org/v3n3/datasets.dawson.html}
 #' 
 NULL
